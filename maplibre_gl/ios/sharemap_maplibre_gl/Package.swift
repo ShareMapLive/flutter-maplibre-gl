@@ -4,12 +4,12 @@
 import PackageDescription
 
 let package = Package(
-    name: "maplibre_gl",
+    name: "sharemap_maplibre_gl",
     platforms: [
         .iOS("13.0"),
     ],
     products: [
-        .library(name: "maplibre-gl", targets: ["maplibre_gl"])
+        .library(name: "sharemap-maplibre-gl", targets: ["sharemap_maplibre_gl"])
     ],
     dependencies: [
         // When updating the dependency version,
@@ -18,13 +18,11 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "maplibre_gl",
+            name: "sharemap_maplibre_gl",
             dependencies: [
                 .product(name: "MapLibre", package: "maplibre-gl-native-distribution")
             ],
-            cSettings: [
-                .headerSearchPath("include/maplibre_gl")
-            ]
+            path: "Sources/maplibre_gl"
         )
     ]
 )

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-part of '../maplibre_gl.dart';
+part of '../sharemap_maplibre_gl.dart';
 
 typedef OnMapClickCallback =
     void Function(Point<double> point, LatLng coordinates);
@@ -1141,6 +1141,13 @@ class MapLibreMapController extends ChangeNotifier {
   Future<Map<String, String>> getCustomHeaders() async {
     return _maplibrePlatform.getCustomHeaders();
   }
+
+  set transformRequest(TransformRequestCallback? callback) {
+    _maplibrePlatform.transformRequest = callback;
+  }
+
+  TransformRequestCallback? get transformRequest =>
+      _maplibrePlatform.transformRequest;
 
   /// Adds a symbol to the map, configured using the specified custom [options].
   ///
