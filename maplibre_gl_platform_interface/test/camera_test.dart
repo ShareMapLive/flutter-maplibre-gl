@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:maplibre_gl_platform_interface/maplibre_gl_platform_interface.dart';
+import 'package:sharemap_maplibre_gl_platform_interface/maplibre_gl_platform_interface.dart';
 
 void main() {
   group('CameraPosition', () {
@@ -87,10 +87,7 @@ void main() {
 
   group('CameraUpdate', () {
     test('newCameraPosition', () {
-      const camera = CameraPosition(
-        target: LatLng(10.0, 20.0),
-        zoom: 5.0,
-      );
+      const camera = CameraPosition(target: LatLng(10.0, 20.0), zoom: 5.0);
       final update = CameraUpdate.newCameraPosition(camera);
       final json = update.toJson() as List;
       expect(json[0], 'newCameraPosition');

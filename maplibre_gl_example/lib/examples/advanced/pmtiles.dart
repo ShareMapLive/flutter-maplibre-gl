@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:sharemap_maplibre_gl/maplibre_gl.dart';
 import '../../page.dart';
 import '../../shared/shared.dart';
 
@@ -68,12 +68,11 @@ class _PMTilesBodyState extends State<_PMTilesBody> {
       floatingActionButton: ExampleButton(
         label: _canReset ? 'Reset camera' : 'Go to London',
         icon: _canReset ? Icons.refresh : Icons.flight_takeoff,
-        onPressed:
-            _canInteractWithMap
-                ? _canReset
-                    ? _resetCamera
-                    : _moveCameraToLondon
-                : null,
+        onPressed: _canInteractWithMap
+            ? _canReset
+                  ? _resetCamera
+                  : _moveCameraToLondon
+            : null,
         style: ExampleButtonStyle.tonal,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

@@ -2,7 +2,7 @@
 library;
 
 import 'dart:js_interop';
-import 'package:maplibre_gl_web/src/interop/geo/lng_lat_bounds_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/geo/lng_lat_bounds_interop.dart';
 
 ///  A `LngLat` object represents a given longitude and latitude coordinate, measured in degrees.
 ///
@@ -23,10 +23,7 @@ import 'package:maplibre_gl_web/src/interop/geo/lng_lat_bounds_interop.dart';
 @JS('LngLat')
 @staticInterop
 class LngLatJsImpl {
-  external factory LngLatJsImpl(
-    num lng,
-    num lat,
-  );
+  external factory LngLatJsImpl(num lng, num lat);
 }
 
 extension LngLatJsImplExtension on LngLatJsImpl {

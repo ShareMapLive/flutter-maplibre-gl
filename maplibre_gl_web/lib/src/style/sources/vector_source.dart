@@ -1,6 +1,6 @@
 import 'dart:js_interop';
-import 'package:maplibre_gl_web/src/interop/style/sources/vector_source_interop.dart';
-import 'package:maplibre_gl_web/src/style/sources/source.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/style/sources/vector_source_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/style/sources/source.dart';
 
 class VectorSource extends Source<VectorSourceJsImpl> {
   String? get url => jsObject.url;
@@ -8,19 +8,13 @@ class VectorSource extends Source<VectorSourceJsImpl> {
   List<String>? get tiles =>
       jsObject.tiles.toDart.map((s) => s.toDart).toList();
 
-  factory VectorSource({
-    String? url,
-    List<String>? tiles,
-  }) {
+  factory VectorSource({String? url, List<String>? tiles}) {
     if (url != null && tiles != null) {
       throw Exception('Specify only one between url and tiles');
     }
     if (url != null) {
       return VectorSource.fromJsObject(
-        VectorSourceJsImpl(
-          type: 'vector',
-          url: url,
-        ),
+        VectorSourceJsImpl(type: 'vector', url: url),
       );
     }
     return VectorSource.fromJsObject(
@@ -36,9 +30,7 @@ class VectorSource extends Source<VectorSourceJsImpl> {
 
   @override
   get dict {
-    final dict = <String, dynamic>{
-      'type': 'vector',
-    };
+    final dict = <String, dynamic>{'type': 'vector'};
     if (url != null) {
       dict['url'] = url;
     }

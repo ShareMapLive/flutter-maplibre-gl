@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:sharemap_maplibre_gl/maplibre_gl.dart';
 import '../../page.dart';
 import '../../shared/shared.dart';
 
@@ -45,9 +45,7 @@ class _FullMapBodyState extends State<_FullMapBody> {
 
   Future<void> _resetCamera() async {
     await _mapController?.animateCamera(
-      CameraUpdate.newCameraPosition(
-        ExampleConstants.defaultCameraPosition,
-      ),
+      CameraUpdate.newCameraPosition(ExampleConstants.defaultCameraPosition),
     );
     setState(() => canReset = false);
   }
@@ -67,12 +65,11 @@ class _FullMapBodyState extends State<_FullMapBody> {
       floatingActionButton: ExampleButton(
         label: canReset ? 'Reset camera' : 'Go to San Francisco',
         icon: canReset ? Icons.refresh : Icons.flight_takeoff,
-        onPressed:
-            _canInteractWithMap
-                ? canReset
-                    ? _resetCamera
-                    : _moveCameraToSanFrancisco
-                : null,
+        onPressed: _canInteractWithMap
+            ? canReset
+                  ? _resetCamera
+                  : _moveCameraToSanFrancisco
+            : null,
         style: ExampleButtonStyle.tonal,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

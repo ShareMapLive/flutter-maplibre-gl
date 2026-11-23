@@ -2,9 +2,9 @@
 library;
 
 import 'dart:js_interop';
-import 'package:maplibre_gl_web/src/interop/geo/lng_lat_interop.dart';
-import 'package:maplibre_gl_web/src/interop/geo/point_interop.dart';
-import 'package:maplibre_gl_web/src/interop/ui/map_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/geo/lng_lat_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/geo/point_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/ui/map_interop.dart';
 import 'package:web/web.dart';
 
 @JS()

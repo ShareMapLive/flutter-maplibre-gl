@@ -3,7 +3,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'sharemap_maplibre_gl'
-  s.version          = '0.26.2'
+  s.version          = '0.28.0'
   s.summary          = 'MapLibre GL Flutter plugin'
   s.description      = <<-DESC
 MapLibre GL Flutter plugin.
@@ -12,11 +12,12 @@ MapLibre GL Flutter plugin.
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'MapLibre' => 'info@maplibre.org' }
   s.source           = { :path => '.' }
-  s.source_files = 'sharemap_maplibre_gl/Sources/maplibre_gl/**/*'
+  s.source_files = 'sharemap_maplibre_gl/Sources/maplibre_gl/**/*', 'sharemap_maplibre_gl/Sources/sharemap_maplibre_gl_objc/**/*'
+  s.public_header_files = 'sharemap_maplibre_gl/Sources/sharemap_maplibre_gl_objc/include/*.h'
   s.dependency 'Flutter'
   # When updating the dependency version,
   # make sure to also update the version in Package.swift.
-  s.dependency 'MapLibre', '6.27.0'
+  s.dependency 'MapLibre', '7.0.0'
   s.swift_version = '5.0'
-  s.ios.deployment_target = '13.0'
+  s.ios.deployment_target = '15.5'
 end

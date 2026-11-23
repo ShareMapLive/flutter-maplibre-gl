@@ -1,7 +1,7 @@
 import 'dart:js_interop';
 
-import 'package:maplibre_gl_web/src/geo/lng_lat_bounds.dart';
-import 'package:maplibre_gl_web/src/interop/interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/geo/lng_lat_bounds.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/interop.dart';
 
 ///  A `LngLat` object represents a given longitude and latitude coordinate, measured in degrees.
 ///
@@ -24,15 +24,8 @@ class LngLat extends JsObjectWrapper<LngLatJsImpl> {
 
   num get lat => jsObject.lat;
 
-  factory LngLat(
-    num lng,
-    num lat,
-  ) => LngLat.fromJsObject(
-    LngLatJsImpl(
-      lng,
-      lat,
-    ),
-  );
+  factory LngLat(num lng, num lat) =>
+      LngLat.fromJsObject(LngLatJsImpl(lng, lat));
 
   /// Returns a new `LngLat` object whose longitude is wrapped to the range (-180, 180).
   ///

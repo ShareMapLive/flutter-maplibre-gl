@@ -9,12 +9,12 @@
             "path": "./flutter_maplibre_gl"
         },
         {
-            "name": "flutter_maplibre_gl_platform_interface",
-            "path": "./flutter_maplibre_gl_platform_interface"
+            "name": "flutter_sharemap_maplibre_gl_platform_interface",
+            "path": "./maplibre_gl_platform_interface"
         },
         {
-            "name": "flutter_maplibre_gl_web",
-            "path": "./flutter_maplibre_gl_web"
+            "name": "flutter_sharemap_maplibre_gl_web",
+            "path": "./maplibre_gl_web"
         },
     ]
 }

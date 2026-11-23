@@ -1,10 +1,10 @@
 import 'package:web/web.dart';
-import 'package:maplibre_gl_web/src/geo/lng_lat.dart';
-import 'package:maplibre_gl_web/src/interop/interop.dart';
-import 'package:maplibre_gl_web/src/ui/map.dart';
-import 'package:maplibre_gl_web/src/ui/popup.dart';
-import 'package:maplibre_gl_web/src/geo/point.dart';
-import 'package:maplibre_gl_web/src/util/evented.dart';
+import 'package:sharemap_maplibre_gl_web/src/geo/lng_lat.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/ui/map.dart';
+import 'package:sharemap_maplibre_gl_web/src/ui/popup.dart';
+import 'package:sharemap_maplibre_gl_web/src/geo/point.dart';
+import 'package:sharemap_maplibre_gl_web/src/util/evented.dart';
 
 /// Creates a marker component
 /// @param {HTMLElement} [element] DOM element to use as a marker. The default is a light blue, droplet-shaped SVG marker.
@@ -140,6 +140,7 @@ class MarkerOptions extends JsObjectWrapper<MarkerOptionsJsImpl> {
     num? rotation,
     String? rotationAlignment,
     String? pitchAlignment,
+    bool? subpixelPositioning,
   }) {
     final jsImpl = MarkerOptionsJsImpl();
     if (element != null) jsImpl.element = element;
@@ -150,6 +151,9 @@ class MarkerOptions extends JsObjectWrapper<MarkerOptionsJsImpl> {
     if (rotation != null) jsImpl.rotation = rotation;
     if (rotationAlignment != null) jsImpl.rotationAlignment = rotationAlignment;
     if (pitchAlignment != null) jsImpl.pitchAlignment = pitchAlignment;
+    if (subpixelPositioning != null) {
+      jsImpl.subpixelPositioning = subpixelPositioning;
+    }
     return MarkerOptions.fromJsObject(jsImpl);
   }
 

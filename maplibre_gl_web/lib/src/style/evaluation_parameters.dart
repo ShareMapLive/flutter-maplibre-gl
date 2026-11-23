@@ -1,4 +1,4 @@
-import 'package:maplibre_gl_web/src/interop/interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/interop.dart';
 
 class EvaluationParameters extends JsObjectWrapper<EvaluationParametersJsImpl> {
   num get zoom => jsObject.zoom;

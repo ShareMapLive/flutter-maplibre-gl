@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:sharemap_maplibre_gl/maplibre_gl.dart';
 import 'package:maplibre_gl_example/util.dart';
 import '../../page.dart';
 import '../../shared/shared.dart';
@@ -77,13 +77,10 @@ class _FillLayerBodyState extends State<_FillLayerBody> {
 
     try {
       // Add GeoJSON source with multiple polygons
-      await _controller!.addGeoJsonSource(
-        _sourceId,
-        {
-          'type': 'FeatureCollection',
-          'features': _generateRandomPolygons(5),
-        },
-      );
+      await _controller!.addGeoJsonSource(_sourceId, {
+        'type': 'FeatureCollection',
+        'features': _generateRandomPolygons(5),
+      });
 
       // Add fill layer
       await _controller!.addFillLayer(
@@ -105,9 +102,9 @@ class _FillLayerBodyState extends State<_FillLayerBody> {
     } catch (e) {
       print('FillLayerExample: Error adding fill layer: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error adding fill layer: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error adding fill layer: $e')));
       }
     }
   }
@@ -182,161 +179,160 @@ class _FillLayerBodyState extends State<_FillLayerBody> {
         ),
         trackCameraPosition: true,
       ),
-      controls:
-          _controller == null
-              ? []
-              : [
-                ControlGroup(
-                  title: 'Fill Color',
-                  children: [
-                    ListTile(
-                      title: const Text('Fill Color'),
-                      trailing: Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: _fillColor,
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                      onTap: () => _pickColor('fill'),
-                    ),
-                    ListTile(
-                      title: Text(
-                        'Opacity: ${(_fillOpacity * 100).toStringAsFixed(0)}%',
-                      ),
-                      subtitle: Slider(
-                        value: _fillOpacity,
-                        min: 0.0,
-                        max: 1.0,
-                        divisions: 20,
-                        onChanged: (value) async {
-                          setState(() => _fillOpacity = value);
-                          await _updateLayer();
-                        },
+      controls: _controller == null
+          ? []
+          : [
+              ControlGroup(
+                title: 'Fill Color',
+                children: [
+                  ListTile(
+                    title: const Text('Fill Color'),
+                    trailing: Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: _fillColor,
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(4),
                       ),
                     ),
-                  ],
-                ),
-                ControlGroup(
-                  title: 'Fill Outline',
-                  children: [
-                    ListTile(
-                      title: const Text('Outline Color'),
-                      trailing: Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: _fillOutlineColor,
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                      onTap: () => _pickColor('outline'),
+                    onTap: () => _pickColor('fill'),
+                  ),
+                  ListTile(
+                    title: Text(
+                      'Opacity: ${(_fillOpacity * 100).toStringAsFixed(0)}%',
                     ),
-                    SwitchListTile(
-                      title: const Text('Antialias'),
-                      subtitle: const Text('Smooth edges'),
-                      value: _fillAntialias,
+                    subtitle: Slider(
+                      value: _fillOpacity,
+                      min: 0.0,
+                      max: 1.0,
+                      divisions: 20,
                       onChanged: (value) async {
-                        setState(() => _fillAntialias = value);
+                        setState(() => _fillOpacity = value);
                         await _updateLayer();
                       },
                     ),
-                  ],
-                ),
-                ControlGroup(
-                  title: 'Fill Transform',
-                  children: [
-                    ListTile(
-                      title: Text(
-                        'Translate X: ${_fillTranslateX.toStringAsFixed(0)}',
-                      ),
-                      subtitle: Slider(
-                        value: _fillTranslateX,
-                        min: -50.0,
-                        max: 50.0,
-                        divisions: 100,
-                        onChanged: (value) async {
-                          setState(() => _fillTranslateX = value);
-                          await _updateLayer();
-                        },
+                  ),
+                ],
+              ),
+              ControlGroup(
+                title: 'Fill Outline',
+                children: [
+                  ListTile(
+                    title: const Text('Outline Color'),
+                    trailing: Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: _fillOutlineColor,
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(4),
                       ),
                     ),
-                    ListTile(
-                      title: Text(
-                        'Translate Y: ${_fillTranslateY.toStringAsFixed(0)}',
-                      ),
-                      subtitle: Slider(
-                        value: _fillTranslateY,
-                        min: -50.0,
-                        max: 50.0,
-                        divisions: 100,
-                        onChanged: (value) async {
-                          setState(() => _fillTranslateY = value);
-                          await _updateLayer();
-                        },
-                      ),
+                    onTap: () => _pickColor('outline'),
+                  ),
+                  SwitchListTile(
+                    title: const Text('Antialias'),
+                    subtitle: const Text('Smooth edges'),
+                    value: _fillAntialias,
+                    onChanged: (value) async {
+                      setState(() => _fillAntialias = value);
+                      await _updateLayer();
+                    },
+                  ),
+                ],
+              ),
+              ControlGroup(
+                title: 'Fill Transform',
+                children: [
+                  ListTile(
+                    title: Text(
+                      'Translate X: ${_fillTranslateX.toStringAsFixed(0)}',
                     ),
-                    ListTile(
-                      title: const Text('Translate Anchor'),
-                      subtitle: const Text('Reference frame for translation'),
-                      trailing: SegmentedButton<String>(
-                        segments: const [
-                          ButtonSegment(value: 'map', label: Text('Map')),
-                          ButtonSegment(
-                            value: 'viewport',
-                            label: Text('Viewport'),
-                          ),
-                        ],
-                        selected: {_fillTranslateAnchor},
-                        onSelectionChanged: (selected) async {
-                          setState(() => _fillTranslateAnchor = selected.first);
-                          await _updateLayer();
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                ControlGroup(
-                  title: 'Pattern',
-                  children: [
-                    SwitchListTile(
-                      value: _fillPattern != null,
-                      title: const Text('Fill Pattern'),
-                      subtitle: Text(_fillPattern ?? 'None'),
+                    subtitle: Slider(
+                      value: _fillTranslateX,
+                      min: -50.0,
+                      max: 50.0,
+                      divisions: 100,
                       onChanged: (value) async {
-                        setState(() {
-                          _fillPattern = value ? 'marker-pattern' : null;
-                        });
+                        setState(() => _fillTranslateX = value);
                         await _updateLayer();
                       },
                     ),
-                  ],
-                ),
-                ControlGroup(
-                  title: 'Actions',
-                  children: [
-                    ExampleButton(
-                      label: 'Reset Properties',
-                      onPressed: () async {
-                        setState(() {
-                          _fillOpacity = 0.6;
-                          _fillColor = const Color(0xFF3498DB);
-                          _fillOutlineColor = const Color(0xFF2C3E50);
-                          _fillTranslateX = 0.0;
-                          _fillTranslateY = 0.0;
-                          _fillTranslateAnchor = 'map';
-                          _fillAntialias = true;
-                          _fillPattern = null;
-                        });
+                  ),
+                  ListTile(
+                    title: Text(
+                      'Translate Y: ${_fillTranslateY.toStringAsFixed(0)}',
+                    ),
+                    subtitle: Slider(
+                      value: _fillTranslateY,
+                      min: -50.0,
+                      max: 50.0,
+                      divisions: 100,
+                      onChanged: (value) async {
+                        setState(() => _fillTranslateY = value);
                         await _updateLayer();
                       },
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                  ListTile(
+                    title: const Text('Translate Anchor'),
+                    subtitle: const Text('Reference frame for translation'),
+                    trailing: SegmentedButton<String>(
+                      segments: const [
+                        ButtonSegment(value: 'map', label: Text('Map')),
+                        ButtonSegment(
+                          value: 'viewport',
+                          label: Text('Viewport'),
+                        ),
+                      ],
+                      selected: {_fillTranslateAnchor},
+                      onSelectionChanged: (selected) async {
+                        setState(() => _fillTranslateAnchor = selected.first);
+                        await _updateLayer();
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              ControlGroup(
+                title: 'Pattern',
+                children: [
+                  SwitchListTile(
+                    value: _fillPattern != null,
+                    title: const Text('Fill Pattern'),
+                    subtitle: Text(_fillPattern ?? 'None'),
+                    onChanged: (value) async {
+                      setState(() {
+                        _fillPattern = value ? 'marker-pattern' : null;
+                      });
+                      await _updateLayer();
+                    },
+                  ),
+                ],
+              ),
+              ControlGroup(
+                title: 'Actions',
+                children: [
+                  ExampleButton(
+                    label: 'Reset Properties',
+                    onPressed: () async {
+                      setState(() {
+                        _fillOpacity = 0.6;
+                        _fillColor = const Color(0xFF3498DB);
+                        _fillOutlineColor = const Color(0xFF2C3E50);
+                        _fillTranslateX = 0.0;
+                        _fillTranslateY = 0.0;
+                        _fillTranslateAnchor = 'map';
+                        _fillAntialias = true;
+                        _fillPattern = null;
+                      });
+                      await _updateLayer();
+                    },
+                  ),
+                ],
+              ),
+            ],
     );
   }
 

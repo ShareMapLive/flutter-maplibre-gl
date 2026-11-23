@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:developer' as dev;
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:sharemap_maplibre_gl/maplibre_gl.dart';
 import '../../page.dart';
 import '../../shared/shared.dart';
 
@@ -53,16 +53,17 @@ class _EditStyleLayerAnimatedBodyState
       vsync: this,
     );
 
-    _colorAnimation = ColorTween(
-      begin: Colors.blue,
-      end: Colors.purple,
-    ).animate(_colorAnimationController)..addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        unawaited(_colorAnimationController.reverse());
-      } else if (status == AnimationStatus.dismissed) {
-        unawaited(_colorAnimationController.forward());
-      }
-    });
+    _colorAnimation =
+        ColorTween(
+          begin: Colors.blue,
+          end: Colors.purple,
+        ).animate(_colorAnimationController)..addStatusListener((status) {
+          if (status == AnimationStatus.completed) {
+            unawaited(_colorAnimationController.reverse());
+          } else if (status == AnimationStatus.dismissed) {
+            unawaited(_colorAnimationController.forward());
+          }
+        });
 
     _colorAnimationController.addListener(() {
       unawaited(_updateLayerColors());
@@ -92,22 +93,19 @@ class _EditStyleLayerAnimatedBodyState
       const center = ExampleConstants.sydneyCenter;
 
       // Add circle layer
-      await _controller!.addGeoJsonSource(
-        _circleSourceId,
-        {
-          'type': 'FeatureCollection',
-          'features': [
-            {
-              'type': 'Feature',
-              'geometry': {
-                'type': 'Point',
-                'coordinates': [center.longitude, center.latitude],
-              },
-              'properties': {'name': 'Animated Circle'},
+      await _controller!.addGeoJsonSource(_circleSourceId, {
+        'type': 'FeatureCollection',
+        'features': [
+          {
+            'type': 'Feature',
+            'geometry': {
+              'type': 'Point',
+              'coordinates': [center.longitude, center.latitude],
             },
-          ],
-        },
-      );
+            'properties': {'name': 'Animated Circle'},
+          },
+        ],
+      });
 
       await _controller!.addCircleLayer(
         _circleSourceId,
@@ -120,25 +118,22 @@ class _EditStyleLayerAnimatedBodyState
       );
 
       // Add line layer
-      await _controller!.addGeoJsonSource(
-        _lineSourceId,
-        {
-          'type': 'FeatureCollection',
-          'features': [
-            {
-              'type': 'Feature',
-              'geometry': {
-                'type': 'LineString',
-                'coordinates': [
-                  [center.longitude - 0.01, center.latitude - 0.01],
-                  [center.longitude + 0.01, center.latitude - 0.01],
-                ],
-              },
-              'properties': {'name': 'Animated Line'},
+      await _controller!.addGeoJsonSource(_lineSourceId, {
+        'type': 'FeatureCollection',
+        'features': [
+          {
+            'type': 'Feature',
+            'geometry': {
+              'type': 'LineString',
+              'coordinates': [
+                [center.longitude - 0.01, center.latitude - 0.01],
+                [center.longitude + 0.01, center.latitude - 0.01],
+              ],
             },
-          ],
-        },
-      );
+            'properties': {'name': 'Animated Line'},
+          },
+        ],
+      });
 
       await _controller!.addLineLayer(
         _lineSourceId,
@@ -151,38 +146,32 @@ class _EditStyleLayerAnimatedBodyState
       );
 
       // Add fill layer
-      await _controller!.addGeoJsonSource(
-        _fillSourceId,
-        {
-          'type': 'FeatureCollection',
-          'features': [
-            {
-              'type': 'Feature',
-              'geometry': {
-                'type': 'Polygon',
-                'coordinates': [
-                  [
-                    [center.longitude - 0.005, center.latitude + 0.01],
-                    [center.longitude + 0.005, center.latitude + 0.01],
-                    [center.longitude + 0.005, center.latitude + 0.015],
-                    [center.longitude - 0.005, center.latitude + 0.015],
-                    [center.longitude - 0.005, center.latitude + 0.01],
-                  ],
+      await _controller!.addGeoJsonSource(_fillSourceId, {
+        'type': 'FeatureCollection',
+        'features': [
+          {
+            'type': 'Feature',
+            'geometry': {
+              'type': 'Polygon',
+              'coordinates': [
+                [
+                  [center.longitude - 0.005, center.latitude + 0.01],
+                  [center.longitude + 0.005, center.latitude + 0.01],
+                  [center.longitude + 0.005, center.latitude + 0.015],
+                  [center.longitude - 0.005, center.latitude + 0.015],
+                  [center.longitude - 0.005, center.latitude + 0.01],
                 ],
-              },
-              'properties': {'name': 'Animated Fill'},
+              ],
             },
-          ],
-        },
-      );
+            'properties': {'name': 'Animated Fill'},
+          },
+        ],
+      });
 
       await _controller!.addFillLayer(
         _fillSourceId,
         _fillLayerId,
-        const FillLayerProperties(
-          fillColor: '#3498DB',
-          fillOpacity: 0.6,
-        ),
+        const FillLayerProperties(fillColor: '#3498DB', fillOpacity: 0.6),
       );
 
       setState(() {});
@@ -315,21 +304,18 @@ class _EditStyleLayerAnimatedBodyState
         continue;
       }
 
-      await _controller!.setGeoJsonSource(
-        _circleSourceId,
-        {
-          'type': 'FeatureCollection',
-          'features': [
-            {
-              'type': 'Feature',
-              'geometry': {
-                'type': 'Point',
-                'coordinates': [circleLng, circleLat],
-              },
+      await _controller!.setGeoJsonSource(_circleSourceId, {
+        'type': 'FeatureCollection',
+        'features': [
+          {
+            'type': 'Feature',
+            'geometry': {
+              'type': 'Point',
+              'coordinates': [circleLng, circleLat],
             },
-          ],
-        },
-      );
+          },
+        ],
+      });
 
       // Animate line (wave effect)
       final lineCoords = <List<double>>[];
@@ -345,60 +331,42 @@ class _EditStyleLayerAnimatedBodyState
         if (center.longitude + x < -180 || center.longitude + x > 180) {
           continue;
         }
-        lineCoords.add([
-          center.longitude + x,
-          center.latitude - 0.01 + y,
-        ]);
+        lineCoords.add([center.longitude + x, center.latitude - 0.01 + y]);
       }
 
-      await _controller!.setGeoJsonSource(
-        _lineSourceId,
-        {
-          'type': 'FeatureCollection',
-          'features': [
-            {
-              'type': 'Feature',
-              'geometry': {
-                'type': 'LineString',
-                'coordinates': lineCoords,
-              },
-            },
-          ],
-        },
-      );
+      await _controller!.setGeoJsonSource(_lineSourceId, {
+        'type': 'FeatureCollection',
+        'features': [
+          {
+            'type': 'Feature',
+            'geometry': {'type': 'LineString', 'coordinates': lineCoords},
+          },
+        ],
+      });
 
       // Animate fill (rotate)
       final size = 0.005 + 0.002 * sin(angle);
 
-      await _controller!.setGeoJsonSource(
-        _fillSourceId,
-        {
-          'type': 'FeatureCollection',
-          'features': [
-            {
-              'type': 'Feature',
-              'geometry': {
-                'type': 'Polygon',
-                'coordinates': [
-                  [
-                    [center.longitude - size, center.latitude + 0.01],
-                    [center.longitude + size, center.latitude + 0.01],
-                    [
-                      center.longitude + size,
-                      center.latitude + 0.01 + size * 2,
-                    ],
-                    [
-                      center.longitude - size,
-                      center.latitude + 0.01 + size * 2,
-                    ],
-                    [center.longitude - size, center.latitude + 0.01],
-                  ],
+      await _controller!.setGeoJsonSource(_fillSourceId, {
+        'type': 'FeatureCollection',
+        'features': [
+          {
+            'type': 'Feature',
+            'geometry': {
+              'type': 'Polygon',
+              'coordinates': [
+                [
+                  [center.longitude - size, center.latitude + 0.01],
+                  [center.longitude + size, center.latitude + 0.01],
+                  [center.longitude + size, center.latitude + 0.01 + size * 2],
+                  [center.longitude - size, center.latitude + 0.01 + size * 2],
+                  [center.longitude - size, center.latitude + 0.01],
                 ],
-              },
+              ],
             },
-          ],
-        },
-      );
+          },
+        ],
+      });
 
       await Future.delayed(const Duration(milliseconds: 100));
     }
@@ -491,13 +459,12 @@ class _EditStyleLayerAnimatedBodyState
             ExampleButton(
               label: 'Reset Layers',
               icon: Icons.refresh,
-              onPressed:
-                  hasController
-                      ? () async {
-                        await _removeLayers();
-                        await _addStyleLayers();
-                      }
-                      : null,
+              onPressed: hasController
+                  ? () async {
+                      await _removeLayers();
+                      await _addStyleLayers();
+                    }
+                  : null,
             ),
             ExampleButton(
               label: 'Remove Layers',
@@ -513,10 +480,9 @@ class _EditStyleLayerAnimatedBodyState
             ExampleButton(
               label: _isAnimating ? 'Stop Color' : 'Animate Color',
               icon: _isAnimating ? Icons.stop : Icons.palette,
-              onPressed:
-                  hasController
-                      ? (_isAnimating ? _stopAnimation : _startColorAnimation)
-                      : null,
+              onPressed: hasController
+                  ? (_isAnimating ? _stopAnimation : _startColorAnimation)
+                  : null,
             ),
           ],
         ),

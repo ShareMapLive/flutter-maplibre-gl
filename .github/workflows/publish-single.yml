@@ -17,10 +17,10 @@ jobs:
     permissions:
       id-token: write # This is required for requesting the OIDC
     runs-on: ubuntu-latest
-    if: github.repository_owner == 'maplibre'
+    if: github.repository_owner == 'ShareMapLive'
     steps:
       - uses: actions/checkout@v6
-      - uses: dart-lang/setup-dart@v1
+      - uses: dart-lang/setup-dart@v1.8.1
         # --force skips the y/N confirmation
         # --skip-validation because of "Because maplibre_gl requires the Flutter SDK, version solving failed. Flutter users should use `flutter pub` instead of `dart pub`."
         # see https://github.com/dart-lang/setup-dart/issues/68

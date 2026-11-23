@@ -2,7 +2,7 @@
 library;
 
 import 'dart:js_interop';
-import 'package:maplibre_gl_web/src/interop/geo/lng_lat_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/geo/lng_lat_interop.dart';
 
 ///  A `LngLatBounds` object represents a geographical bounding box,
 ///  defined by its southwest and northeast points in longitude and latitude.
@@ -22,10 +22,7 @@ import 'package:maplibre_gl_web/src/interop/geo/lng_lat_interop.dart';
 @JS('LngLatBounds')
 @staticInterop
 class LngLatBoundsJsImpl {
-  external factory LngLatBoundsJsImpl(
-    LngLatJsImpl sw,
-    LngLatJsImpl ne,
-  );
+  external factory LngLatBoundsJsImpl(LngLatJsImpl sw, LngLatJsImpl ne);
 }
 
 extension LngLatBoundsJsImplExtension on LngLatBoundsJsImpl {

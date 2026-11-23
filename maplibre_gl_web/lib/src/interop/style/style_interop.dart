@@ -2,12 +2,12 @@
 library;
 
 import 'dart:js_interop';
-import 'package:maplibre_gl_web/src/interop/js.dart';
-import 'package:maplibre_gl_web/src/interop/style/evaluation_parameters_interop.dart';
-import 'package:maplibre_gl_web/src/interop/style/style_image_interop.dart';
-import 'package:maplibre_gl_web/src/interop/style/style_layer_interop.dart';
-import 'package:maplibre_gl_web/src/interop/ui/map_interop.dart';
-import 'package:maplibre_gl_web/src/interop/util/evented_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/js.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/style/evaluation_parameters_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/style/style_image_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/style/style_layer_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/ui/map_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/util/evented_interop.dart';
 
 @JS()
 @staticInterop
@@ -107,7 +107,7 @@ extension StyleJsImplExtension on StyleJsImpl {
 
   external void setFilter(
     String layerId,
-    JSAny filter,
+    JSAny? filter,
     StyleSetterOptionsJsImpl options,
   );
 

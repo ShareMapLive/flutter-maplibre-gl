@@ -3,20 +3,20 @@ library;
 
 import 'dart:js_interop';
 import 'package:web/web.dart';
-import 'package:maplibre_gl_web/src/interop/geo/lng_lat_bounds_interop.dart';
-import 'package:maplibre_gl_web/src/interop/geo/lng_lat_interop.dart';
-import 'package:maplibre_gl_web/src/interop/geo/point_interop.dart';
-import 'package:maplibre_gl_web/src/interop/js.dart';
-import 'package:maplibre_gl_web/src/interop/style/feature_identifier_interop.dart';
-import 'package:maplibre_gl_web/src/interop/style/style_interop.dart';
-import 'package:maplibre_gl_web/src/interop/ui/camera_interop.dart';
-import 'package:maplibre_gl_web/src/interop/ui/handler/box_zoom_interop.dart';
-import 'package:maplibre_gl_web/src/interop/ui/handler/dblclick_zoom_interop.dart';
-import 'package:maplibre_gl_web/src/interop/ui/handler/drag_pan_interop.dart';
-import 'package:maplibre_gl_web/src/interop/ui/handler/drag_rotate_interop.dart';
-import 'package:maplibre_gl_web/src/interop/ui/handler/keyboard_interop.dart';
-import 'package:maplibre_gl_web/src/interop/ui/handler/scroll_zoom_interop.dart';
-import 'package:maplibre_gl_web/src/interop/ui/handler/touch_zoom_rotate_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/geo/lng_lat_bounds_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/geo/lng_lat_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/geo/point_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/js.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/style/feature_identifier_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/style/style_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/ui/camera_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/ui/handler/box_zoom_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/ui/handler/dblclick_zoom_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/ui/handler/drag_pan_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/ui/handler/drag_rotate_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/ui/handler/keyboard_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/ui/handler/scroll_zoom_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/ui/handler/touch_zoom_rotate_interop.dart';
 
 ///  The `MapLibreMap` object represents the map on your page. It exposes methods
 ///  and properties that enable you to programmatically change the map,
@@ -55,6 +55,14 @@ class MapLibreMapJsImpl extends CameraJsImpl {
 extension MapLibreMapJsImplExtension on MapLibreMapJsImpl {
   external StyleJsImpl get style;
   external JSAny? get painter;
+
+  /// How long symbols fade as they are placed, in milliseconds. The library
+  /// only takes it as the `fadeDuration` map option, but reads this field on
+  /// every frame, so writing it changes the fade on a live map.
+  @JS('_fadeDuration')
+  external JSNumber get placementFadeDuration;
+  @JS('_fadeDuration')
+  external set placementFadeDuration(JSNumber value);
 
   ///  The map's {@link ScrollZoomHandler}, which implements zooming in and out with a scroll wheel or trackpad.
   ///  Find more details and examples using `scrollZoom` in the {@link ScrollZoomHandler} section.
@@ -162,6 +170,14 @@ extension MapLibreMapJsImplExtension on MapLibreMapJsImpl {
   ///  // Set the map's max bounds.
   ///  map.setMaxBounds(bounds);
   external MapLibreMapJsImpl setMaxBounds(LngLatBoundsJsImpl? bounds);
+
+  /// Sets the callback that runs before every camera change, from a gesture
+  /// or from `jumpTo`, `easeTo` and `flyTo`. It gets the camera state about
+  /// to apply and returns the values to overwrite. `null` removes it.
+  ///
+  /// Library versions 6 and later only. 5 has the `transformCameraUpdate`
+  /// property instead, see [MapLibreMap.setTransformCameraUpdate].
+  external void setTransformCameraUpdate(JSFunction? transform);
 
   ///  Sets or clears the map's minimum zoom level.
   ///  If the map's current zoom level is lower than the new minimum,
@@ -468,6 +484,18 @@ extension MapLibreMapJsImplExtension on MapLibreMapJsImpl {
   ///  var styleJson = map.getStyle();
   external StyleJsImpl? getStyle();
 
+  /// The same call as [getStyle], typed as a plain [JSObject].
+  ///
+  /// [StyleJsImpl] is a `@staticInterop` class, and passing one to `dartify`
+  /// does not survive dart2wasm: the runtime type checks it makes are the ones
+  /// `invalid_runtime_check_with_js_interop_types` warns about, so the walk
+  /// ends in a cast the compiler proved impossible and the call fails with
+  /// "Attempt to execute code removed by Dart AOT compiler (TFA)". Reading the
+  /// style as a `JSObject` keeps it on the path `dartify` handles, the one
+  /// `getFeatureState` already uses.
+  @JS('getStyle')
+  external JSObject? getStyleObject();
+
   ///  Returns a Boolean indicating whether the map's style is fully loaded.
   ///
   ///  @returns {boolean} A Boolean indicating whether the style is fully loaded.
@@ -582,6 +610,15 @@ extension MapLibreMapJsImplExtension on MapLibreMapJsImpl {
   ///  @see Use `ImageData`: [Add a generated icon to the map](https://maplibre.org/maplibre-gl-js/docs/examples/add-image-generated/)
   external void addImage(String id, JSAny image, [JSAny? options]);
 
+  ///  Sets the function that supplies an image the style asks for but does not
+  ///  have. The resolver is called with the image id and may return a promise;
+  ///  it registers the image by calling [addImage].
+  ///
+  ///  Since maplibre-gl-js 6 this is the only way to satisfy such a request: a
+  ///  `styleimagemissing` listener can still observe it, but calling
+  ///  [addImage] from there no longer resolves it. Null removes the resolver.
+  external void setMissingStyleImageResolver(JSFunction? resolver);
+
   ///  Update an existing image in a style. This image can be displayed on the map like any other icon in the style's
   ///  [sprite]  using the image's ID with
   ///  [`icon-image`](https://maplibre.org/maplibre-style-spec/#layout-symbol-icon-image),
@@ -681,7 +718,7 @@ extension MapLibreMapJsImplExtension on MapLibreMapJsImpl {
   ///  @example
   ///  // Move a layer with ID 'label' before the layer with ID 'waterways'.
   ///  map.moveLayer('label', 'waterways');
-  external MapLibreMapJsImpl moveLayer(String id, String beforeId);
+  external MapLibreMapJsImpl moveLayer(String id, [String? beforeId]);
 
   ///  Removes the layer with the given ID from the map's style.
   ///
@@ -748,7 +785,7 @@ extension MapLibreMapJsImplExtension on MapLibreMapJsImpl {
   ///  @see [Create a timeline animation](https://maplibre.org/maplibre-gl-js/docs/examples/timeline-animation/)
   external MapLibreMapJsImpl setFilter(
     String layerId,
-    JSAny filter, [
+    JSAny? filter, [
     StyleSetterOptionsJsImpl? options,
   ]);
 
@@ -756,7 +793,7 @@ extension MapLibreMapJsImplExtension on MapLibreMapJsImpl {
   ///
   ///  @param {string} layerId The ID of the style layer whose filter to get.
   ///  @returns {Array} The layer's filter.
-  external JSArray? getFilter(String layerId);
+  external JSAny? getFilter(String layerId);
 
   ///  Sets the value of a paint property in the specified style layer.
   ///
@@ -817,9 +854,42 @@ extension MapLibreMapJsImplExtension on MapLibreMapJsImpl {
   ///  @param {boolean} [options.validate=true] Whether to check if the filter conforms to the MapLibre JS Style Specification. Disabling validation is a performance optimization that should only be used if you have previously validated the values you will be passing to this function.
   ///  @returns {MapLibreMap} `this`
   external MapLibreMapJsImpl setLight(
-    JSAny light,
-    StyleSetterOptionsJsImpl options,
-  );
+    JSAny light, [
+    StyleSetterOptionsJsImpl? options,
+  ]);
+
+  ///  Sets the any combination of sky values.
+  ///
+  ///  @param sky Sky properties to set. Must conform to the [MapLibre Style Specification](https://maplibre.org/maplibre-style-spec/sky/).
+  ///  @param {Object} [options]
+  ///  @param {boolean} [options.validate=true] Whether to check if the sky conforms to the MapLibre JS Style Specification. Disabling validation is a performance optimization that should only be used if you have previously validated the values you will be passing to this function.
+  ///  @returns {MapLibreMap} `this`
+  external MapLibreMapJsImpl setSky(
+    JSAny sky, [
+    StyleSetterOptionsJsImpl? options,
+  ]);
+
+  ///  Loads a 3D terrain mesh, based on a "raster-dem" source.
+  ///
+  ///  @param {Object | null} terrain The terrain to set, or `null` to remove the terrain.
+  ///  @returns {MapLibreMap} `this`
+  external MapLibreMapJsImpl setTerrain(JSAny? terrain);
+
+  ///  Sets the map's projection.
+  ///
+  ///  @param {Object | null} projection A projection definition object, or `null` to reset to the default mercator projection.
+  ///  @returns {MapLibreMap} `this`
+  external MapLibreMapJsImpl setProjection(JSAny? projection);
+
+  ///  Sets one property of the style's global state, read by the `global-state` expression.
+  ///
+  ///  @returns {MapLibreMap} `this`
+  external MapLibreMapJsImpl setGlobalStateProperty(String name, JSAny? value);
+
+  ///  Returns the style's global state.
+  ///
+  ///  @returns {Object} Each global state property with its current value.
+  external JSAny getGlobalState();
 
   ///  Returns the value of the light object.
   ///

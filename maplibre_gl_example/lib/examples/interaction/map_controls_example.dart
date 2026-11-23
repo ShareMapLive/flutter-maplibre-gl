@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:sharemap_maplibre_gl/maplibre_gl.dart';
 
 import '../../page.dart';
 import '../../shared/shared.dart';
@@ -290,10 +290,7 @@ class _MapControlsBodyState extends State<_MapControlsBody> {
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                    child: const Text(
-                      'Change',
-                      style: TextStyle(fontSize: 12),
-                    ),
+                    child: const Text('Change', style: TextStyle(fontSize: 12)),
                   ),
                 ],
               ),

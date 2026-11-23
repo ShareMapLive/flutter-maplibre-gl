@@ -1,9 +1,9 @@
 import 'dart:js_interop';
 
-import 'package:maplibre_gl_web/src/interop/interop.dart';
-import 'package:maplibre_gl_web/src/style/evaluation_parameters.dart';
-import 'package:maplibre_gl_web/src/style/style_image.dart';
-import 'package:maplibre_gl_web/src/ui/map.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/style/evaluation_parameters.dart';
+import 'package:sharemap_maplibre_gl_web/src/style/style_image.dart';
+import 'package:sharemap_maplibre_gl_web/src/ui/map.dart';
 
 class StyleSetterOptions extends JsObjectWrapper<StyleSetterOptionsJsImpl> {
   bool get validate => jsObject.validate;
@@ -101,7 +101,11 @@ class Style extends JsObjectWrapper<StyleJsImpl> {
       jsObject.setLayerZoomRange(layerId);
 
   setFilter(String layerId, dynamic filter, StyleSetterOptions options) =>
-      jsObject.setFilter(layerId, filter, options.jsObject);
+      jsObject.setFilter(
+        layerId,
+        (filter as Object?).jsify(),
+        options.jsObject,
+      );
 
   ///  Get a layer's filter object
   ///  @param {string} layer the layer to inspect
@@ -181,10 +185,7 @@ class Style extends JsObjectWrapper<StyleJsImpl> {
 }
 
 class StyleFunction extends JsObjectWrapper<StyleFunctionJsImpl> {
-  factory StyleFunction({
-    dynamic base,
-    dynamic stops,
-  }) {
+  factory StyleFunction({dynamic base, dynamic stops}) {
     final jsImpl = StyleFunctionJsImpl();
     if (base != null) jsImpl.base = base.toJS;
     if (stops != null) jsImpl.stops = stops.toJS;

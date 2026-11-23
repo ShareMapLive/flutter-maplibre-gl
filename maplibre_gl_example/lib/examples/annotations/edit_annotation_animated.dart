@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:developer' as dev;
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:sharemap_maplibre_gl/maplibre_gl.dart';
 import 'package:maplibre_gl_example/util.dart';
 import '../../page.dart';
 import '../../shared/shared.dart';
@@ -50,16 +50,17 @@ class _EditAnnotationAnimatedBodyState
       vsync: this,
     );
 
-    _colorAnimation = ColorTween(
-      begin: Colors.blue,
-      end: Colors.red,
-    ).animate(_colorAnimationController)..addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        unawaited(_colorAnimationController.reverse());
-      } else if (status == AnimationStatus.dismissed) {
-        unawaited(_colorAnimationController.forward());
-      }
-    });
+    _colorAnimation =
+        ColorTween(
+          begin: Colors.blue,
+          end: Colors.red,
+        ).animate(_colorAnimationController)..addStatusListener((status) {
+          if (status == AnimationStatus.completed) {
+            unawaited(_colorAnimationController.reverse());
+          } else if (status == AnimationStatus.dismissed) {
+            unawaited(_colorAnimationController.forward());
+          }
+        });
 
     _colorAnimationController.addListener(() {
       unawaited(_updateAnnotationColors());
@@ -135,13 +136,22 @@ class _EditAnnotationAnimatedBodyState
     });
   }
 
+  /// True while there is still a live map to talk to.
+  ///
+  /// The animation listener starts this without awaiting it, so a call is
+  /// usually in flight when the page is closed. Resuming after that reaches a
+  /// controller whose map is gone and fails with `MAP_DISPOSED`, so every
+  /// await below is followed by this check as well.
+  bool get _canDrawAnnotations =>
+      mounted &&
+      _controller != null &&
+      !_controller!.isDisposed &&
+      _animatedSymbol != null &&
+      _animatedCircle != null &&
+      _animatedLine != null;
+
   Future<void> _updateAnnotationColors() async {
-    if (_controller == null ||
-        _animatedSymbol == null ||
-        _animatedCircle == null ||
-        _animatedLine == null) {
-      return;
-    }
+    if (!_canDrawAnnotations) return;
 
     final color = _colorAnimation.value;
     if (color == null) return;
@@ -157,12 +167,14 @@ class _EditAnnotationAnimatedBodyState
       );
 
       // Update circle color
+      if (!_canDrawAnnotations) return;
       await _controller!.updateCircle(
         _animatedCircle!,
         CircleOptions(circleColor: hexColor),
       );
 
       // Update line color
+      if (!_canDrawAnnotations) return;
       await _controller!.updateLine(
         _animatedLine!,
         LineOptions(lineColor: hexColor),
@@ -181,61 +193,58 @@ class _EditAnnotationAnimatedBodyState
     const center = ExampleConstants.sydneyCenter;
     var step = 0;
 
-    _animationTimer = Timer.periodic(
-      const Duration(milliseconds: 100),
-      (timer) async {
-        if (!_isAnimating || _controller == null) {
-          timer.cancel();
-          return;
-        }
+    _animationTimer = Timer.periodic(const Duration(milliseconds: 100), (
+      timer,
+    ) async {
+      if (!_isAnimating || _controller == null) {
+        timer.cancel();
+        return;
+      }
 
-        step++;
-        final angle = step * 0.1;
-        const radius = 0.01;
+      step++;
+      final angle = step * 0.1;
+      const radius = 0.01;
 
-        // Animate symbol in a circle
-        if (_animatedSymbol != null) {
-          final newLat = center.latitude + radius * sin(angle);
-          final newLng = center.longitude + radius * cos(angle);
-          await _controller!.updateSymbol(
-            _animatedSymbol!,
-            SymbolOptions(
-              geometry: LatLng(newLat, newLng),
-              iconRotate: angle * 180 / pi,
-            ),
-          );
-        }
+      // Animate symbol in a circle
+      if (_animatedSymbol != null) {
+        final newLat = center.latitude + radius * sin(angle);
+        final newLng = center.longitude + radius * cos(angle);
+        await _controller!.updateSymbol(
+          _animatedSymbol!,
+          SymbolOptions(
+            geometry: LatLng(newLat, newLng),
+            iconRotate: angle * 180 / pi,
+          ),
+        );
+      }
 
-        // Animate circle in a figure-8 pattern
-        if (_animatedCircle != null) {
-          final newLat = center.latitude - 0.01 + 0.005 * sin(angle * 2);
-          final newLng = center.longitude + 0.01 * sin(angle);
-          await _controller!.updateCircle(
-            _animatedCircle!,
-            CircleOptions(
-              geometry: LatLng(newLat, newLng),
-              circleRadius: 15 + 5 * sin(angle * 3),
-            ),
-          );
-        }
+      // Animate circle in a figure-8 pattern
+      if (_animatedCircle != null) {
+        final newLat = center.latitude - 0.01 + 0.005 * sin(angle * 2);
+        final newLng = center.longitude + 0.01 * sin(angle);
+        await _controller!.updateCircle(
+          _animatedCircle!,
+          CircleOptions(
+            geometry: LatLng(newLat, newLng),
+            circleRadius: 15 + 5 * sin(angle * 3),
+          ),
+        );
+      }
 
-        // Animate line (wave effect)
-        if (_animatedLine != null) {
-          final points = <LatLng>[];
-          for (var i = 0; i < 20; i++) {
-            final x = -0.01 + (0.02 * i / 19);
-            final y = 0.005 * sin(angle + i * 0.5);
-            points.add(
-              LatLng(center.latitude + 0.01 + y, center.longitude + x),
-            );
-          }
-          await _controller!.updateLine(
-            _animatedLine!,
-            LineOptions(geometry: points),
-          );
+      // Animate line (wave effect)
+      if (_animatedLine != null) {
+        final points = <LatLng>[];
+        for (var i = 0; i < 20; i++) {
+          final x = -0.01 + (0.02 * i / 19);
+          final y = 0.005 * sin(angle + i * 0.5);
+          points.add(LatLng(center.latitude + 0.01 + y, center.longitude + x));
         }
-      },
-    );
+        await _controller!.updateLine(
+          _animatedLine!,
+          LineOptions(geometry: points),
+        );
+      }
+    });
   }
 
   void _stopAnimation() {
@@ -393,19 +402,19 @@ class _EditAnnotationAnimatedBodyState
             ExampleButton(
               label: hasAnnotations ? 'Reset Annotations' : 'Add Annotations',
               icon: hasAnnotations ? Icons.refresh : Icons.add,
-              onPressed:
-                  hasController
-                      ? () async {
-                        await _clearAnnotations();
-                        await _addInitialAnnotations();
-                      }
-                      : null,
+              onPressed: hasController
+                  ? () async {
+                      await _clearAnnotations();
+                      await _addInitialAnnotations();
+                    }
+                  : null,
             ),
             ExampleButton(
               label: 'Clear All',
               icon: Icons.clear,
-              onPressed:
-                  hasController && hasAnnotations ? _clearAnnotations : null,
+              onPressed: hasController && hasAnnotations
+                  ? _clearAnnotations
+                  : null,
               style: ExampleButtonStyle.destructive,
             ),
           ],
@@ -416,12 +425,9 @@ class _EditAnnotationAnimatedBodyState
             ExampleButton(
               label: _isAnimating ? 'Stop Movement' : 'Start Movement',
               icon: _isAnimating ? Icons.stop : Icons.play_arrow,
-              onPressed:
-                  hasController && hasAnnotations
-                      ? (_isAnimating
-                          ? _stopAnimation
-                          : _startPositionAnimation)
-                      : null,
+              onPressed: hasController && hasAnnotations
+                  ? (_isAnimating ? _stopAnimation : _startPositionAnimation)
+                  : null,
             ),
           ],
         ),
@@ -436,8 +442,9 @@ class _EditAnnotationAnimatedBodyState
             ExampleButton(
               label: 'Animate Opacity',
               icon: Icons.opacity,
-              onPressed:
-                  hasController && hasAnnotations ? _animateOpacity : null,
+              onPressed: hasController && hasAnnotations
+                  ? _animateOpacity
+                  : null,
             ),
           ],
         ),

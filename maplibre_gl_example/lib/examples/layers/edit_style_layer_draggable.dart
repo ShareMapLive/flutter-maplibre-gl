@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:developer' as dev;
 import 'dart:math' show Point, Random;
 import 'package:flutter/material.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:sharemap_maplibre_gl/maplibre_gl.dart';
 import 'package:maplibre_gl_example/util.dart';
 import '../../page.dart';
 import '../../shared/shared.dart';
@@ -105,7 +105,12 @@ class _EditStyleLayerDraggableBodyState
         position.longitude,
         position.latitude,
       ];
-      await _updateCircleSource();
+      // Single-feature update: cheaper than resending the whole collection
+      // on every drag move.
+      await _controller!.setGeoJsonFeature(
+        _circleSourceId,
+        _circleFeatures[circleIndex],
+      );
       return;
     }
 
@@ -118,7 +123,10 @@ class _EditStyleLayerDraggableBodyState
         position.longitude,
         position.latitude,
       ];
-      await _updateSymbolSource();
+      await _controller!.setGeoJsonFeature(
+        _symbolSourceId,
+        _symbolFeatures[symbolIndex],
+      );
       return;
     }
   }
@@ -140,14 +148,10 @@ class _EditStyleLayerDraggableBodyState
 
     try {
       // Create circle layer
-      await _controller!.addGeoJsonSource(
-        _circleSourceId,
-        {
-          'type': 'FeatureCollection',
-          'features': [],
-        },
-        promoteId: 'id',
-      );
+      await _controller!.addGeoJsonSource(_circleSourceId, {
+        'type': 'FeatureCollection',
+        'features': [],
+      }, promoteId: 'id');
 
       await _controller!.addCircleLayer(
         _circleSourceId,
@@ -163,23 +167,22 @@ class _EditStyleLayerDraggableBodyState
       );
 
       // Create symbol layer
-      await _controller!.addGeoJsonSource(
-        _symbolSourceId,
-        {
-          'type': 'FeatureCollection',
-          'features': [],
-        },
-        promoteId: 'id',
-      );
+      await _controller!.addGeoJsonSource(_symbolSourceId, {
+        'type': 'FeatureCollection',
+        'features': [],
+      }, promoteId: 'id');
 
       await _controller!.addSymbolLayer(
         _symbolSourceId,
         _symbolLayerId,
-        const SymbolLayerProperties(
+        SymbolLayerProperties(
           iconImage: 'custom-marker',
           iconSize: 1.2,
           iconAllowOverlap: true,
           textField: '{name}',
+          // A font stack the active demo style actually serves; a glyph 404
+          // would hide the whole symbol, icon included.
+          textFont: ExampleConstants.demoFontStack,
           textSize: 12,
           textOffset: [0, -2.5],
           textColor: '#2C3E50',
@@ -194,9 +197,9 @@ class _EditStyleLayerDraggableBodyState
     } catch (e) {
       dev.log('Error creating layers: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error creating layers: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error creating layers: $e')));
       }
     }
   }
@@ -264,25 +267,19 @@ class _EditStyleLayerDraggableBodyState
   Future<void> _updateCircleSource() async {
     if (_controller == null) return;
 
-    await _controller!.setGeoJsonSource(
-      _circleSourceId,
-      {
-        'type': 'FeatureCollection',
-        'features': _circleFeatures,
-      },
-    );
+    await _controller!.setGeoJsonSource(_circleSourceId, {
+      'type': 'FeatureCollection',
+      'features': _circleFeatures,
+    });
   }
 
   Future<void> _updateSymbolSource() async {
     if (_controller == null) return;
 
-    await _controller!.setGeoJsonSource(
-      _symbolSourceId,
-      {
-        'type': 'FeatureCollection',
-        'features': _symbolFeatures,
-      },
-    );
+    await _controller!.setGeoJsonSource(_symbolSourceId, {
+      'type': 'FeatureCollection',
+      'features': _symbolFeatures,
+    });
   }
 
   Future<void> _clearAll() async {
@@ -317,10 +314,7 @@ class _EditStyleLayerDraggableBodyState
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
-                fontSize: 13,
-                color: Colors.black87,
-              ),
+              style: const TextStyle(fontSize: 13, color: Colors.black87),
             ),
           ),
         ],
@@ -382,12 +376,11 @@ class _EditStyleLayerDraggableBodyState
         if (_draggedFeatureId != null && _lastDragEvent != null)
           Card(
             margin: const EdgeInsets.all(ExampleConstants.paddingStandard),
-            color:
-                _lastDragEvent == DragEventType.start
-                    ? Colors.green.shade50
-                    : _lastDragEvent == DragEventType.drag
-                    ? Colors.blue.shade50
-                    : Colors.orange.shade50,
+            color: _lastDragEvent == DragEventType.start
+                ? Colors.green.shade50
+                : _lastDragEvent == DragEventType.drag
+                ? Colors.blue.shade50
+                : Colors.orange.shade50,
             child: Padding(
               padding: const EdgeInsets.all(ExampleConstants.paddingStandard),
               child: Column(
@@ -401,23 +394,23 @@ class _EditStyleLayerDraggableBodyState
                             : _lastDragEvent == DragEventType.drag
                             ? Icons.pan_tool
                             : Icons.check_circle,
-                        color:
-                            _lastDragEvent == DragEventType.start
-                                ? Colors.green
-                                : _lastDragEvent == DragEventType.drag
-                                ? Colors.blue
-                                : Colors.orange,
+                        color: _lastDragEvent == DragEventType.start
+                            ? Colors.green
+                            : _lastDragEvent == DragEventType.drag
+                            ? Colors.blue
+                            : Colors.orange,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           'Drag Event: ${_lastDragEvent!.name.toUpperCase()}',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
+                          style:
+                              Theme.of(
+                                context,
+                              ).textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
                         ),
                       ),
                     ],

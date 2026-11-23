@@ -1,18 +1,14 @@
-import 'package:maplibre_gl_web/src/style/layers/circle_layer.dart';
+import 'package:sharemap_maplibre_gl_web/src/style/layers/circle_layer.dart';
 
 class CircleLayerJsImpl {
   static toJs(CircleLayer circleLayer) => toDict(circleLayer).jsify();
 
   static toDict(CircleLayer circleLayer) {
-    final dict = <String, dynamic>{
-      'id': circleLayer.id,
-      'type': 'circle',
-    };
+    final dict = <String, dynamic>{'id': circleLayer.id, 'type': 'circle'};
     if (circleLayer.source != null) {
-      dict['source'] =
-          circleLayer.source is String
-              ? circleLayer.source
-              : circleLayer.source.dict;
+      dict['source'] = circleLayer.source is String
+          ? circleLayer.source
+          : circleLayer.source.dict;
     }
     if (circleLayer.sourceLayer != null) {
       dict['source-layer'] = circleLayer.sourceLayer;

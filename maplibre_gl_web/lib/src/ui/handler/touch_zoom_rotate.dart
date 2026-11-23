@@ -1,5 +1,5 @@
 import 'package:web/web.dart';
-import 'package:maplibre_gl_web/src/interop/interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/interop.dart';
 
 class TouchZoomRotateHandler
     extends JsObjectWrapper<TouchZoomRotateHandlerJsImpl> {

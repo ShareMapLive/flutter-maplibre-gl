@@ -6,23 +6,25 @@ import PackageDescription
 let package = Package(
     name: "sharemap_maplibre_gl",
     platforms: [
-        .iOS("13.0"),
+        .iOS("15.5"),
     ],
     products: [
         .library(name: "sharemap-maplibre-gl", targets: ["sharemap_maplibre_gl"])
     ],
     dependencies: [
         // When updating the dependency version,
-        // make sure to also update the version in maplibre_gl.podspec.
-        .package(url: "https://github.com/maplibre/maplibre-gl-native-distribution.git", exact: "6.27.0"),
+        // make sure to also update the version in sharemap_maplibre_gl.podspec.
+        .package(url: "https://github.com/maplibre/maplibre-gl-native-distribution.git", exact: "7.0.0"),
     ],
     targets: [
         .target(
             name: "sharemap_maplibre_gl",
             dependencies: [
+                "sharemap_maplibre_gl_objc",
                 .product(name: "MapLibre", package: "maplibre-gl-native-distribution")
-            ],
-            path: "Sources/maplibre_gl"
-        )
+            ]
+        ),
+        // Catches the Objective-C exceptions MapLibre raises, which Swift cannot.
+        .target(name: "sharemap_maplibre_gl_objc")
     ]
 )

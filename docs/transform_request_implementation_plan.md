@@ -37,7 +37,7 @@ By executing the native-to-Dart communication from **background threads** on And
 
 ---
 
-### `maplibre_gl_platform_interface`
+### `sharemap_maplibre_gl_platform_interface`
 
 This component defines the shared platform types and interface methods.
 
@@ -72,7 +72,7 @@ class RequestParameters {
 }
 ```
 
-#### [MODIFY] [maplibre_gl_platform_interface.dart](file:///Users/sharemap/Documents/sharemap/flutter-maplibre-gl/maplibre_gl_platform_interface/lib/src/maplibre_gl_platform_interface.dart)
+#### [MODIFY] [sharemap_maplibre_gl_platform_interface.dart](file:///Users/sharemap/Documents/sharemap/flutter-maplibre-gl/maplibre_gl_platform_interface/lib/src/sharemap_maplibre_gl_platform_interface.dart)
 - Export `resource_type.dart` and `request_parameters.dart`.
 - Add `TransformRequestCallback` typedef:
   ```dart
@@ -117,7 +117,7 @@ class RequestParameters {
 
 ---
 
-### `maplibre_gl_web` (Web Platform Implementation)
+### `sharemap_maplibre_gl_web` (Web Platform Implementation)
 
 #### [MODIFY] [maplibre_web_gl_platform.dart](file:///Users/sharemap/Documents/sharemap/flutter-maplibre-gl/maplibre_gl_web/lib/src/maplibre_web_gl_platform.dart)
 - Read `_creationParams['transformRequestEnabled']`.
