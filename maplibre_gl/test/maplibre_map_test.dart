@@ -116,6 +116,21 @@ void main() {
     });
   });
 
+  testWidgets('enables transformRequest in native creation parameters', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: MapLibreMap(
+          transformRequest: (url, resourceType) =>
+              RequestParameters(url: '$url?transformed=1'),
+        ),
+      ),
+    );
+
+    expect(platform.lastCreationParams?['transformRequestEnabled'], isTrue);
+  });
+
   group('androidView', () {
     testWidgets('reaches the platform when set', (tester) async {
       const view = AndroidMapView(

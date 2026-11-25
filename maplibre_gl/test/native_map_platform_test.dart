@@ -155,6 +155,54 @@ void main() {
       expect(styleLoads, 1);
     });
 
+    test('transforms native requests through the Dart callback', () async {
+      const channel = MethodChannel('plugins.flutter.io/maplibre_gl_$viewId');
+      final messenger =
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+      final readyCalls = <MethodCall>[];
+      messenger.setMockMethodCallHandler(channel, (call) async {
+        readyCalls.add(call);
+        return null;
+      });
+      addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+
+      ResourceType? receivedType;
+      platform.transformRequest = (url, resourceType) async {
+        receivedType = resourceType;
+        return RequestParameters(
+          url: '$url?transformed=1',
+          headers: const {'Authorization': 'Bearer test'},
+        );
+      };
+
+      await platform.initPlatform(viewId);
+
+      expect(readyCalls.map((call) => call.method), [
+        'map#transformRequestReady',
+      ]);
+
+      final reply = Completer<ByteData?>();
+      await messenger.handlePlatformMessage(
+        channel.name,
+        const StandardMethodCodec().encodeMethodCall(
+          MethodCall('map#transformRequest', {
+            'url': 'https://tiles.example.test/style.json',
+            'resourceType': ResourceType.tile.index,
+          }),
+        ),
+        reply.complete,
+      );
+
+      expect(receivedType, ResourceType.tile);
+      expect(
+        const StandardMethodCodec().decodeEnvelope((await reply.future)!),
+        {
+          'url': 'https://tiles.example.test/style.json?transformed=1',
+          'headers': const {'Authorization': 'Bearer test'},
+        },
+      );
+    });
+
     test('calls before it fail with a StateError', () {
       expect(() => platform.getLayerIds(), throwsStateError);
       expect(api.calls, isEmpty);
