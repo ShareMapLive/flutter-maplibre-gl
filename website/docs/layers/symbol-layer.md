@@ -11,11 +11,18 @@ A symbol layer renders icons, text labels, or both at point locations from a Geo
 
 Ten European cities with custom marker icons and text labels, rendered from a GeoJSON source.
 
+!!! note "Add sources and layers after the style loads"
+    Every call below needs a loaded style. Run them from `onStyleLoadedCallback`,
+    not from `onMapCreated`, and run them there again after a style change: a new
+    style discards every source and layer you added. See
+    [Constraints and gotchas](../concepts/annotations-vs-layers.md#constraints-and-gotchas).
+
 ## Basic setup
 
 ```dart
 // 1. Register a custom icon
-await addImageFromAsset(controller, 'my-marker', 'assets/marker.png');
+final bytes = await rootBundle.load('assets/marker.png');
+await controller.addImage('my-marker', bytes.buffer.asUint8List());
 
 // 2. Add a GeoJSON source with point features
 await controller.addGeoJsonSource('cities', {
@@ -102,6 +109,19 @@ SymbolLayerProperties(
 )
 ```
 
+## Raise symbols above the map (web)
+
+On web, `symbolHeightOffset` places icons and text the given number of meters above their anchor, for labels that float over 3D buildings or terrain:
+
+```dart
+const SymbolLayerProperties(
+  textField: [Expressions.get, 'name'],
+  symbolHeightOffset: 30,
+)
+```
+
+Android and iOS ignore it.
+
 ## Update layer properties
 
 ```dart
@@ -123,6 +143,39 @@ await controller.addSymbolLayer(
   filter: ['>=', ['get', 'population'], 1000000], // only cities with pop >= 1M
 );
 ```
+
+## Symbols that update often
+
+MapLibre fades symbols in as it places them. With a layer you update often, such as live vehicles, this makes updated symbols flicker. Turning placement transitions off places symbols at once, without fading. It applies to every symbol on the map, the style's labels included.
+
+### Off for the whole map
+
+Best when your data updates every second or more often.
+
+```dart
+MapLibreMap(
+  styleString: myStyle,
+  symbolPlacementTransitionsEnabled: false,
+  // ...
+)
+```
+
+The base map's labels also stop fading while zooming and panning.
+
+### Off only during an update
+
+Keeps the base map's fades.
+
+```dart
+await controller.setSymbolPlacementTransitionsEnabled(false);
+await controller.setGeoJsonSource('vehicles', data);
+await controller.setSymbolPlacementTransitionsEnabled(true);
+```
+
+!!! note "Android"
+    If your style declares no `transition`, symbols stop fading after the first update. Add `"transition": {"duration": 300, "delay": 0}` to the style to keep them.
+
+See **Live Symbols (Placement Transitions)** in the example app.
 
 ## Key `SymbolLayerProperties` fields
 

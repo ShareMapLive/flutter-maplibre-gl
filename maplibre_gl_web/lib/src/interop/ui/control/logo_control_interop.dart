@@ -2,7 +2,7 @@
 library;
 
 import 'dart:js_interop';
-import 'package:maplibre_gl_web/src/interop/ui/map_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/ui/map_interop.dart';
 
 /// A LogoControl is a control that adds the watermark.
 ///

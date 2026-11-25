@@ -5,9 +5,11 @@ All packages are versioned and released together.
 
 ---
 ## Overview
-The repository is a multi-package workspace (`maplibre_gl` (root dir), `maplibre_gl_web`, `maplibre_gl_platform_interface`). 
+The repository is a multi-package workspace (`sharemap_maplibre_gl`, `sharemap_maplibre_gl_platform_interface`, `sharemap_maplibre_gl_web`).
 
 All packages share the same version number. A release = bump versions + update changelog + tag + publish.
+
+The unpublished `scripts` package resolves separately from the Flutter workspace because its `test` dependency conflicts with the SDK-pinned `flutter_test` and Pigeon analyzer versions. Root Melos commands invoke its generator, analyzer and tests from that package.
 
 ## Versioning Policy
 
@@ -66,16 +68,19 @@ Before changing any versions ensure:
 3. Apply rule above (minor vs patch bump).
 
 ## Update Version Numbers
-Edit `pubspec.yaml` in each package:
-- `maplibre_gl_platform_interface`
-- `maplibre_gl_web`
-- `maplibre_gl`
-
-Ensure internal dependencies point to the new version (same number across all three). Example snippet:
-```yaml
-dependencies:
-  maplibre_gl_platform_interface: ^0.25.0
+Run the bump script from the repository root:
+```bash
+./scripts/bump_version.sh 0.28.1+sharemap.1
 ```
+It sets `version:` in every workspace package (`sharemap_maplibre_gl`, `sharemap_maplibre_gl_platform_interface`, `sharemap_maplibre_gl_web`, plus the unpublished `maplibre_gl_example` and `scripts`), moves the internal `sharemap_maplibre_gl_*` constraints to the new version, and updates the `sharemap_maplibre_gl: ^x.y.z` install snippets in `README.md` and `website/docs`. Add `--dry-run` to see the edits first.
+
+It then prints which changelogs and which section of the migration guide still need writing, since those need prose and are left to you.
+
+Once the changelogs are written, verify the whole workspace agrees:
+```bash
+./scripts/bump_version.sh --check
+```
+This fails if any package is on a different version, if an internal constraint is stale (which publishes fine but resolves to the previous release), if a changelog has no section for the version, or if a docs snippet still pins the old one.
 
 ## Update the Changelog
 In root `CHANGELOG.md`:

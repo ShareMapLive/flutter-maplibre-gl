@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:maplibre_gl_platform_interface/maplibre_gl_platform_interface.dart';
-import 'package:maplibre_gl_web/src/camera_easing_math.dart';
+import 'package:sharemap_maplibre_gl_platform_interface/maplibre_gl_platform_interface.dart';
+import 'package:sharemap_maplibre_gl_web/src/camera_easing_math.dart';
 
 void main() {
   group('easingImplFor', () {

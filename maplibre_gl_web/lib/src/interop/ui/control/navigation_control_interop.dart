@@ -2,7 +2,7 @@
 library;
 
 import 'dart:js_interop';
-import 'package:maplibre_gl_web/src/interop/ui/map_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/ui/map_interop.dart';
 
 extension type NavigationControlOptionsJsImpl._(JSObject _)
     implements JSObject {

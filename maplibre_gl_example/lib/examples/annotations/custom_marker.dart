@@ -1,8 +1,8 @@
+import 'dart:async' show unawaited;
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:sharemap_maplibre_gl/maplibre_gl.dart';
 
 import '../../page.dart';
 
@@ -179,8 +179,8 @@ class MarkerState extends State<Marker> with TickerProviderStateMixin {
     _controller = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
-      // ignore: discarded_futures --- IGNORE ---
-    )..repeat(reverse: true);
+    );
+    unawaited(_controller.repeat(reverse: true));
     _animation = CurvedAnimation(
       parent: _controller,
       curve: Curves.elasticOut,
@@ -189,23 +189,13 @@ class MarkerState extends State<Marker> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    var ratio = 1.0;
-
-    //web does not support Platform._operatingSystem
-    if (!kIsWeb) {
-      final isIos = defaultTargetPlatform == TargetPlatform.iOS;
-
-      // iOS returns logical pixel while Android returns screen pixel
-      ratio = isIos ? 1.0 : MediaQuery.of(context).devicePixelRatio;
-    }
-
     return Positioned(
-      left: _position.x / ratio - _iconSize / 2,
-      top: _position.y / ratio - _iconSize / 2,
+      left: _position.x - _iconSize / 2,
+      top: _position.y - _iconSize / 2,
       child: RotationTransition(
         turns: _animation,
         child: Image.asset(
-          'assets/symbols/2.0x/custom-icon.png',
+          'assets/symbols/custom-icon.png',
           height: _iconSize,
         ),
       ),

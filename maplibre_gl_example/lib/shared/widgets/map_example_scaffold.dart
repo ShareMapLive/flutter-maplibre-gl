@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:sharemap_maplibre_gl/maplibre_gl.dart';
 import '../constants.dart';
 
 /// A reusable scaffold for map examples that provides a consistent layout:
@@ -61,32 +61,22 @@ class MapExampleScaffold extends StatelessWidget {
     final screenHeight = MediaQuery.of(context).size.height;
     final mapHeight = screenHeight * mapHeightRatio;
 
-    final body =
-        mapOnly
-            ? map
-            : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: mapHeight,
-                  child: map,
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: _buildControls(theme),
-                  ),
-                ),
-              ],
-            );
+    final body = mapOnly
+        ? map
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: mapHeight, child: map),
+              Expanded(
+                child: SingleChildScrollView(child: _buildControls(theme)),
+              ),
+            ],
+          );
 
     return Scaffold(
-      appBar:
-          showAppBar && title != null
-              ? AppBar(
-                title: Text(title!),
-                elevation: 0,
-              )
-              : null,
+      appBar: showAppBar && title != null
+          ? AppBar(title: Text(title!), elevation: 0)
+          : null,
       body: body,
       floatingActionButton: floatingActionButton,
     );
@@ -119,10 +109,7 @@ class MapExampleScaffold extends StatelessWidget {
       );
     }
 
-    return Padding(
-      padding: padding,
-      child: wrappedControls,
-    );
+    return Padding(padding: padding, child: wrappedControls);
   }
 }
 
@@ -163,26 +150,15 @@ class MapExampleScaffoldBuilder extends StatelessWidget {
 
     final body = Column(
       children: [
-        SizedBox(
-          height: mapHeight,
-          child: map,
-        ),
-        Expanded(
-          child: SingleChildScrollView(
-            child: controlsBuilder(context),
-          ),
-        ),
+        SizedBox(height: mapHeight, child: map),
+        Expanded(child: SingleChildScrollView(child: controlsBuilder(context))),
       ],
     );
 
     return Scaffold(
-      appBar:
-          showAppBar && title != null
-              ? AppBar(
-                title: Text(title!),
-                elevation: 0,
-              )
-              : null,
+      appBar: showAppBar && title != null
+          ? AppBar(title: Text(title!), elevation: 0)
+          : null,
       body: body,
       floatingActionButton: floatingActionButton,
     );

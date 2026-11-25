@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:sharemap_maplibre_gl/maplibre_gl.dart';
 import '../../page.dart';
 import '../../shared/shared.dart';
 
@@ -57,10 +57,7 @@ class _DocLineLayerBodyState extends State<_DocLineLayerBody> {
         {
           'type': 'Feature',
           'properties': {'name': 'Trans-Siberian Railway'},
-          'geometry': {
-            'type': 'LineString',
-            'coordinates': _routeCoords,
-          },
+          'geometry': {'type': 'LineString', 'coordinates': _routeCoords},
         },
       ],
     });

@@ -1,8 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:maplibre_gl_platform_interface/maplibre_gl_platform_interface.dart';
+import 'package:sharemap_maplibre_gl_platform_interface/maplibre_gl_platform_interface.dart';
 
 void main() {
   group('VectorSourceProperties', () {
+    // Native reads this key by name, so a rename has to fail here rather than
+    // silently stop working on device.
+    test('toJson writes volatile', () {
+      const props = VectorSourceProperties(volatile: true);
+      expect(props.toJson()['volatile'], true);
+    });
+
     test('toJson includes type "vector"', () {
       const props = VectorSourceProperties();
       final json = props.toJson();
@@ -52,19 +59,8 @@ void main() {
     });
 
     test('copyWith replaces specified fields', () {
-      const original = VectorSourceProperties(
-        url: 'https://old.com',
-      );
-      final updated = original.copyWith(
-        'https://new.com',
-        null,
-        null,
-        null,
-        5,
-        null,
-        null,
-        null,
-      );
+      const original = VectorSourceProperties(url: 'https://old.com');
+      final updated = original.copyWith(url: 'https://new.com', minzoom: 5);
       expect(updated.url, 'https://new.com');
       expect(updated.minzoom, 5);
       expect(updated.maxzoom, 22); // preserved default
@@ -99,16 +95,7 @@ void main() {
 
     test('copyWith replaces specified fields', () {
       const original = RasterSourceProperties();
-      final updated = original.copyWith(
-        null,
-        null,
-        null,
-        null,
-        null,
-        256,
-        null,
-        null,
-      );
+      final updated = original.copyWith(tileSize: 256);
       expect(updated.tileSize, 256);
       expect(updated.scheme, 'xyz'); // preserved
     });
@@ -127,6 +114,25 @@ void main() {
       expect(json['encoding'], 'mapbox');
     });
 
+    test('custom-encoding factors are omitted unless set', () {
+      // MapLibre GL JS validates the source JSON and rejects redFactor,
+      // greenFactor, blueFactor and baseShift when encoding is not "custom",
+      // so they must never be serialized by default.
+      final json = const RasterDemSourceProperties().toJson();
+      expect(json.containsKey('redFactor'), isFalse);
+      expect(json.containsKey('greenFactor'), isFalse);
+      expect(json.containsKey('blueFactor'), isFalse);
+      expect(json.containsKey('baseShift'), isFalse);
+
+      final custom = const RasterDemSourceProperties(
+        encoding: 'custom',
+        redFactor: 256.0,
+        baseShift: 32.0,
+      ).toJson();
+      expect(custom['redFactor'], 256.0);
+      expect(custom['baseShift'], 32.0);
+    });
+
     test('fromJson roundtrip', () {
       const original = RasterDemSourceProperties(
         encoding: 'terrarium',
@@ -139,21 +145,18 @@ void main() {
 
     test('copyWith replaces specified fields', () {
       const original = RasterDemSourceProperties();
-      final updated = original.copyWith(
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        'terrarium',
-      );
+      final updated = original.copyWith(encoding: 'terrarium');
       expect(updated.encoding, 'terrarium');
     });
   });
 
   group('GeojsonSourceProperties', () {
+    // Native reads this key by name, as above.
+    test('toJson writes clusterMinPoints', () {
+      const props = GeojsonSourceProperties(cluster: true, clusterMinPoints: 5);
+      expect(props.toJson()['clusterMinPoints'], 5);
+    });
+
     test('toJson includes type "geojson"', () {
       const props = GeojsonSourceProperties();
       final json = props.toJson();
@@ -206,20 +209,7 @@ void main() {
 
     test('copyWith replaces specified fields', () {
       const original = GeojsonSourceProperties();
-      final updated = original.copyWith(
-        null,
-        null,
-        null,
-        null,
-        null,
-        true,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-      );
+      final updated = original.copyWith(cluster: true);
       expect(updated.cluster, true);
       expect(updated.buffer, 128); // preserved
     });
@@ -317,23 +307,12 @@ void main() {
       test('copyWith updates clusterProperties', () {
         const original = GeojsonSourceProperties(cluster: true);
         final updated = original.copyWith(
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          {
+          clusterProperties: {
             'sum': [
               '+',
               ['get', 'weight'],
             ],
           },
-          null,
-          null,
-          null,
         );
         expect(updated.clusterProperties, {
           'sum': [
@@ -385,7 +364,7 @@ void main() {
       const original = VideoSourceProperties(
         urls: ['https://old.com/video.mp4'],
       );
-      final updated = original.copyWith(['https://new.com/video.mp4'], null);
+      final updated = original.copyWith(urls: ['https://new.com/video.mp4']);
       expect(updated.urls, ['https://new.com/video.mp4']);
     });
   });
@@ -405,9 +384,7 @@ void main() {
     });
 
     test('toJson with values', () {
-      const props = ImageSourceProperties(
-        url: 'https://example.com/image.png',
-      );
+      const props = ImageSourceProperties(url: 'https://example.com/image.png');
       final json = props.toJson();
       expect(json['url'], 'https://example.com/image.png');
     });
@@ -421,10 +398,8 @@ void main() {
     });
 
     test('copyWith replaces specified fields', () {
-      const original = ImageSourceProperties(
-        url: 'https://old.com/image.png',
-      );
-      final updated = original.copyWith('https://new.com/image.png', null);
+      const original = ImageSourceProperties(url: 'https://old.com/image.png');
+      final updated = original.copyWith(url: 'https://new.com/image.png');
       expect(updated.url, 'https://new.com/image.png');
     });
   });

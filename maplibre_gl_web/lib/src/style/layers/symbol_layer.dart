@@ -1,5 +1,5 @@
-import 'package:maplibre_gl_web/src/interop/style/layers/symbol_layer_interop.dart';
-import 'package:maplibre_gl_web/src/style/layers/layer.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/style/layers/symbol_layer_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/style/layers/layer.dart';
 
 class SymbolLayer extends Layer {
   String id;

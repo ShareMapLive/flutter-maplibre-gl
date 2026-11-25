@@ -15,8 +15,8 @@ flowchart LR
     G --> GC["coordinates<br/><small>[lng, lat] nested by type</small>"]
     P --> PV["{ name: 'Paris',<br/>population: 2161000, ... }"]
 
-    classDef root fill:#1f6feb,stroke:#1a5fd0,color:#fff;
-    class FC root
+    classDef emphasis fill:#1f6feb,stroke:#1a5fd0,color:#fff;
+    class FC emphasis
 ```
 
 !!! note "Longitude before latitude"
@@ -93,74 +93,33 @@ SymbolLayerProperties(
 )
 ```
 
-## Adding a GeoJSON source
+## Adding and updating a source
 
-### Inline data
+Sources are added with `addGeoJsonSource` and updated with `setGeoJsonSource`
+(whole collection) or `setGeoJsonFeature` (one feature by id). See
+[GeoJSON Source](../layers/geojson-source.md) for the calls and their options.
 
-Pass a Dart `Map<String, dynamic>` representing the FeatureCollection:
+### Large payloads
 
-```dart
-await controller.addGeoJsonSource('my-source', {
-  'type': 'FeatureCollection',
-  'features': [
-    {
-      'type': 'Feature',
-      'properties': {'name': 'Paris', 'population': 2161000},
-      'geometry': {
-        'type': 'Point',
-        'coordinates': [2.3522, 48.8566],
-      },
-    },
-  ],
-});
-```
+On Android and iOS, a payload with long geometries or long properties, such as a line with tens of thousands of points, is encoded on a background isolate, so the UI is not blocked for the whole encode. Handing the payload to the isolate costs a copy on the calling side, and for many small features, such as points, the copy costs more than the encode: those payloads, and small ones, are encoded in place. A very large source can still drop a frame either way.
 
-### Remote URL
+## Feature ids
 
-Pass a URL string as the GeoJSON value. MapLibre fetches and parses it:
+A feature keeps the `id` it has in the data, number or string, on every platform: the queries and the cluster calls answer `2.5` and `"poi-12"` as they were added, and an `["id"]` filter or feature state finds the feature by that id. The tap and drag callbacks get the id as text, such as `"2"` for `2`.
 
-```dart
-await controller.addGeoJsonSource('rivers', {
-  'type': 'geojson',
-  'data': 'https://example.com/rivers.geojson',
-});
-```
+GeoJSON loaded from a URL or declared in the style does not pass through the plugin, so it keeps the ids MapLibre gives it: on Android and web only integer ids are sure to come back the same. Vector tile ids are always integers.
 
-!!! warning "CORS on web"
-    When running on web, the GeoJSON URL must have appropriate CORS headers. Requests to the same origin always work.
+To keep the ids, the plugin can add a property whose name starts with `maplibre_gl:` to a feature. The queries leave it out, but a style expression that reads every property, such as `["properties"]`, sees it.
 
-## Updating data
+Filter by id with `["id"]`. On web the legacy filter syntax, such as `["==", "$id", 2]`, sees only integer ids.
 
-### Replace all features
+A source added with `addSource` and `generateId: true` gives each feature its index as id, over any id it had. MapLibre Native has no `generateId`, so on Android and iOS the plugin numbers the data it sets, but not data loaded from a URL.
 
-```dart
-await controller.setGeoJsonSource('my-source', {
-  'type': 'FeatureCollection',
-  'features': updatedFeatures,
-});
-```
+Feature state (`setFeatureState`, `getFeatureState`, `removeFeatureState`) is supported on Android, iOS and web. It lets you restyle individual features, for example recoloring many of them every frame, without re-feeding the whole GeoJSON source.
 
-Use this when the dataset changes significantly (e.g. filtering, time-series playback).
+## `promoteId`: web only
 
-### Update a single feature
-
-```dart
-await controller.setGeoJsonFeature('my-source', {
-  'type': 'Feature',
-  'id': 'feature-42',  // must match an existing feature id
-  'properties': {'status': 'active'},
-  'geometry': {
-    'type': 'Point',
-    'coordinates': [2.3522, 48.8566],
-  },
-});
-```
-
-For this to work, features must have an `id` field. On web you may also need `promoteId` (see below).
-
-## `promoteId`: web-only caveat
-
-MapLibre GL JS requires features to have an integer ID for feature-state to work correctly. If your GeoJSON uses string IDs or property-based IDs, pass `promoteId`:
+`promoteId` makes a property the id of each feature:
 
 ```dart
 await controller.addGeoJsonSource(
@@ -170,7 +129,7 @@ await controller.addGeoJsonSource(
 );
 ```
 
-This parameter is ignored on Android and iOS (native MapLibre handles feature IDs natively).
+Android and iOS ignore it: there every feature must carry a top-level `id` member in the GeoJSON itself.
 
 ## Live demo
 
@@ -181,7 +140,7 @@ This parameter is ignored on Android and iOS (native MapLibre handles feature ID
   loading="lazy"
 ></iframe>
 
-South American capitals rendered from an inline GeoJSON FeatureCollection. Circle radius scales with population using an `interpolate` expression.
+Capital cities across the Americas rendered from an inline FeatureCollection. Circle radius scales with population using an `interpolate` expression.
 
 ## Next steps
 

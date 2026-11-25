@@ -3,12 +3,12 @@ library;
 
 import 'dart:js_interop';
 import 'package:web/web.dart';
-import 'package:maplibre_gl_web/src/interop/geo/lng_lat_interop.dart';
-import 'package:maplibre_gl_web/src/interop/geo/point_interop.dart';
-import 'package:maplibre_gl_web/src/interop/js.dart';
-import 'package:maplibre_gl_web/src/interop/ui/map_interop.dart';
-import 'package:maplibre_gl_web/src/interop/ui/popup_interop.dart';
-import 'package:maplibre_gl_web/src/interop/util/evented_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/geo/lng_lat_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/geo/point_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/js.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/ui/map_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/ui/popup_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/util/evented_interop.dart';
 
 /// Creates a marker component
 /// @param {HTMLElement} [element] DOM element to use as a marker. The default is a light blue, droplet-shaped SVG marker.
@@ -153,4 +153,7 @@ extension MarkerOptionsJsImplExtension on MarkerOptionsJsImpl {
 
   external String? get pitchAlignment;
   external set pitchAlignment(String? value);
+
+  external bool? get subpixelPositioning;
+  external set subpixelPositioning(bool? value);
 }

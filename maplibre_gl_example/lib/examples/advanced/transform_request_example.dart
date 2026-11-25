@@ -1,17 +1,16 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:sharemap_maplibre_gl/maplibre_gl.dart';
 import '../../page.dart';
-import '../../shared/shared.dart';
 
 class TransformRequestExample extends ExamplePage {
   const TransformRequestExample({super.key})
-      : super(
-          const Icon(Icons.security),
-          'Transform Request Headers',
-          category: ExampleCategory.advanced,
-          needsLocationPermission: false,
-        );
+    : super(
+        const Icon(Icons.security),
+        'Transform Request Callback',
+        category: ExampleCategory.advanced,
+        needsLocationPermission: false,
+      );
 
   @override
   Widget build(BuildContext context) => const _TransformRequestBody();
@@ -29,16 +28,7 @@ class _TransformRequestBodyState extends State<_TransformRequestBody> {
   final ScrollController _scrollController = ScrollController();
 
   RequestParameters _onTransformRequest(String url, ResourceType resourceType) {
-    // We add custom headers for all requests intercepted
-    final headers = <String, String>{
-      'X-Client-Platform': 'Flutter-Example',
-      'X-Example-Header': 'TransformRequestExample',
-      'Authorization': 'Bearer mock-jwt-token-12345',
-    };
-
-    // Log the request details for visual feedback
-    final logMessage = '[${resourceType.name.toUpperCase()}] -> $url\n'
-        'Added Headers: $headers';
+    final logMessage = '[${resourceType.name.toUpperCase()}] -> $url';
 
     // Update log list safely
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -50,22 +40,21 @@ class _TransformRequestBodyState extends State<_TransformRequestBody> {
           }
         });
         // Scroll to bottom
-        unawaited(Future.delayed(const Duration(milliseconds: 50), () async {
-          if (_scrollController.hasClients) {
-            await _scrollController.animateTo(
-              _scrollController.position.maxScrollExtent,
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeOut,
-            );
-          }
-        }));
+        unawaited(
+          Future.delayed(const Duration(milliseconds: 50), () async {
+            if (_scrollController.hasClients) {
+              await _scrollController.animateTo(
+                _scrollController.position.maxScrollExtent,
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOut,
+              );
+            }
+          }),
+        );
       }
     });
 
-    return RequestParameters(
-      url: url,
-      headers: headers,
-    );
+    return RequestParameters(url: url);
   }
 
   @override
@@ -90,8 +79,9 @@ class _TransformRequestBodyState extends State<_TransformRequestBody> {
                 target: LatLng(16.0, 108.0), // Vietnam region center
                 zoom: 5.0,
               ),
-              styleString: 'https://tiles.sharemap.live/tiles/styles/sharemap.json',
-              transformRequest: null,
+              styleString:
+                  'https://tiles.sharemap.live/tiles/styles/sharemap.json',
+              transformRequest: _onTransformRequest,
               trackCameraPosition: true,
             ),
           ),
@@ -104,18 +94,24 @@ class _TransformRequestBodyState extends State<_TransformRequestBody> {
           Expanded(
             flex: 2,
             child: ColoredBox(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+              color: Theme.of(
+                context,
+              ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12.0,
+                      vertical: 8.0,
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           'Live Intercepted Network Requests',
-                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          style: Theme.of(context).textTheme.titleSmall
+                              ?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
                         ),
@@ -123,7 +119,7 @@ class _TransformRequestBodyState extends State<_TransformRequestBody> {
                           icon: const Icon(Icons.delete_outline, size: 20),
                           onPressed: () => setState(() => _logs.clear()),
                           tooltip: 'Clear Logs',
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -137,9 +133,12 @@ class _TransformRequestBodyState extends State<_TransformRequestBody> {
                           )
                         : ListView.separated(
                             controller: _scrollController,
-                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12.0,
+                            ),
                             itemCount: _logs.length,
-                            separatorBuilder: (context, index) => const Divider(),
+                            separatorBuilder: (context, index) =>
+                                const Divider(),
                             itemBuilder: (context, index) {
                               return SelectableText(
                                 _logs[index],

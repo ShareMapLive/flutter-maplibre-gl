@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:sharemap_maplibre_gl/maplibre_gl.dart';
 import '../../page.dart';
 import '../../shared/shared.dart';
 import '../../util.dart';
@@ -59,19 +59,18 @@ class _DocSymbolLayerBodyState extends State<_DocSymbolLayerBody> {
 
     await ctrl.addGeoJsonSource(_sourceId, {
       'type': 'FeatureCollection',
-      'features':
-          _cities
-              .map(
-                (c) => {
-                  'type': 'Feature',
-                  'properties': {'name': c['name']},
-                  'geometry': {
-                    'type': 'Point',
-                    'coordinates': [c['lng'], c['lat']],
-                  },
-                },
-              )
-              .toList(),
+      'features': _cities
+          .map(
+            (c) => {
+              'type': 'Feature',
+              'properties': {'name': c['name']},
+              'geometry': {
+                'type': 'Point',
+                'coordinates': [c['lng'], c['lat']],
+              },
+            },
+          )
+          .toList(),
     });
 
     await ctrl.addSymbolLayer(

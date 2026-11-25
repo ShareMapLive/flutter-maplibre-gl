@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:sharemap_maplibre_gl/maplibre_gl.dart';
 import '../../page.dart';
 import '../../shared/shared.dart';
 
@@ -80,19 +80,20 @@ class _TranslucentMapBodyState extends State<_TranslucentMapBody> {
             // This is a random color, for example purposes.
             foregroundLoadColor: Colors.purple,
             // This sets the map to be translucent.
-            translucentTextureSurface: true,
+            androidView: const AndroidMapView(
+              surface: AndroidMapSurface.translucentTextureView,
+            ),
           ),
         ],
       ),
       floatingActionButton: ExampleButton(
         label: _canReset ? 'Reset camera' : 'Go to Tokyo',
         icon: _canReset ? Icons.refresh : Icons.location_searching,
-        onPressed:
-            _canInteractWithMap
-                ? _canReset
-                    ? _resetCamera
-                    : _moveCameraToTokyo
-                : null,
+        onPressed: _canInteractWithMap
+            ? _canReset
+                  ? _resetCamera
+                  : _moveCameraToTokyo
+            : null,
         style: ExampleButtonStyle.tonal,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

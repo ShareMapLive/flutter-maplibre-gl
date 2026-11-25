@@ -2,12 +2,12 @@
 library;
 
 import 'dart:js_interop';
-import 'package:maplibre_gl_web/src/interop/geo/lng_lat_bounds_interop.dart';
-import 'package:maplibre_gl_web/src/interop/geo/lng_lat_interop.dart';
-import 'package:maplibre_gl_web/src/interop/geo/point_interop.dart';
-import 'package:maplibre_gl_web/src/interop/js.dart';
-import 'package:maplibre_gl_web/src/interop/ui/map_interop.dart';
-import 'package:maplibre_gl_web/src/interop/util/evented_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/geo/lng_lat_bounds_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/geo/lng_lat_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/geo/point_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/js.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/ui/map_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/util/evented_interop.dart';
 
 ///  Options common to {@link MapLibreMap#jumpTo}, [MapLibreMap.easeTo], and {@link MapLibreMap#flyTo}, controlling the desired location,
 ///  zoom, bearing, and pitch of the camera. All properties are optional, and when a property is omitted, the current

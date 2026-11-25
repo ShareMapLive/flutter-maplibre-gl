@@ -1,12 +1,12 @@
 import 'dart:js_interop';
 
-import 'package:maplibre_gl_web/src/geo/lng_lat.dart';
-import 'package:maplibre_gl_web/src/geo/lng_lat_bounds.dart';
-import 'package:maplibre_gl_web/src/geo/point.dart';
-import 'package:maplibre_gl_web/src/interop/interop.dart';
-import 'package:maplibre_gl_web/src/ui/map.dart';
-import 'package:maplibre_gl_web/src/util/evented.dart';
-import 'package:maplibre_gl_web/src/utils.dart' as utils;
+import 'package:sharemap_maplibre_gl_web/src/geo/lng_lat.dart';
+import 'package:sharemap_maplibre_gl_web/src/geo/lng_lat_bounds.dart';
+import 'package:sharemap_maplibre_gl_web/src/geo/point.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/ui/map.dart';
+import 'package:sharemap_maplibre_gl_web/src/util/evented.dart';
+import 'package:sharemap_maplibre_gl_web/src/utils.dart' as utils;
 
 ///  Options common to {@link MapLibreMap#jumpTo}, [MapLibreMap.easeTo], and {@link MapLibreMap#flyTo}, controlling the desired location,
 ///  zoom, bearing, and pitch of the camera. All properties are optional, and when a property is omitted, the current
@@ -114,12 +114,7 @@ class PaddingOptions extends JsObjectWrapper<PaddingOptionsJsImpl> {
 
   num? get right => jsObject.right;
 
-  factory PaddingOptions({
-    num? top,
-    num? bottom,
-    num? left,
-    num? right,
-  }) {
+  factory PaddingOptions({num? top, num? bottom, num? left, num? right}) {
     final jsImpl = PaddingOptionsJsImpl();
     if (top != null) jsImpl.top = top;
     if (bottom != null) jsImpl.bottom = bottom;
@@ -373,10 +368,9 @@ class Camera extends Evented {
         jsObject.cameraForBounds(bounds.jsObject),
       );
     }
-    final optionsJs =
-        options is CameraOptions
-            ? options.jsObject
-            : (options is Map ? utils.jsify(options) : options as JSAny);
+    final optionsJs = options is CameraOptions
+        ? options.jsObject
+        : (options is Map ? utils.jsify(options) : options as JSAny);
 
     return CameraOptions.fromJsObject(
       jsObject.cameraForBounds(
@@ -508,7 +502,15 @@ class Camera extends Evented {
     } else {
       optionsJs = options as JSAny;
     }
-    return MapLibreMap.fromJsObject(jsObject.easeTo(optionsJs));
+    // eventData was accepted and then dropped, so the properties a caller adds
+    // to the events this fires never reached them. Still omitted entirely when
+    // there is none, rather than passed as an explicit null.
+    final eventDataJs = utils.jsify(eventData);
+    return MapLibreMap.fromJsObject(
+      eventDataJs == null
+          ? jsObject.easeTo(optionsJs)
+          : jsObject.easeTo(optionsJs, eventDataJs),
+    );
   }
 
   ///  Changes any combination of center, zoom, bearing, and pitch, animating the transition along a curve that
@@ -567,7 +569,7 @@ class Camera extends Evented {
   ///  @see [Fly to a location](https://maplibre.org/maplibre-gl-js/docs/examples/flyto/)
   ///  @see [Slowly fly to a location](https://maplibre.org/maplibre-gl-js/docs/examples/flyto-options/)
   ///  @see [Fly to a location based on scroll position](https://maplibre.org/maplibre-gl-js/docs/examples/scroll-fly-to/)
-  MapLibreMap flyTo(dynamic options, [String? eventData]) {
+  MapLibreMap flyTo(dynamic options, [dynamic eventData]) {
     JSAny optionsJs;
     if (options is CameraOptions) {
       optionsJs = options.jsObject as JSAny;
@@ -576,7 +578,13 @@ class Camera extends Evented {
     } else {
       optionsJs = options as JSAny;
     }
-    return MapLibreMap.fromJsObject(jsObject.flyTo(optionsJs));
+    // Passed on like in [easeTo], omitted when there is none.
+    final eventDataJs = utils.jsify(eventData);
+    return MapLibreMap.fromJsObject(
+      eventDataJs == null
+          ? jsObject.flyTo(optionsJs)
+          : jsObject.flyTo(optionsJs, eventDataJs),
+    );
   }
 
   bool isEasing() => jsObject.isEasing();

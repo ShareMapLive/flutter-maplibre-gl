@@ -1,5 +1,5 @@
 import 'dart:js_interop';
-import 'package:maplibre_gl_web/src/interop/interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/interop.dart';
 
 class StyleImage extends JsObjectWrapper<StyleImageJsImpl> {
   dynamic get data => jsObject.data;

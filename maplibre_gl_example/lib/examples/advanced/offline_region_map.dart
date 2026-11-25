@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:sharemap_maplibre_gl/maplibre_gl.dart';
 
 import 'offline_regions.dart';
 
@@ -16,9 +16,7 @@ class _OfflineRegionMapState extends State<OfflineRegionMap> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Offline Region: ${widget.item.name}'),
-      ),
+      appBar: AppBar(title: Text('Offline Region: ${widget.item.name}')),
       body: MapLibreMap(
         initialCameraPosition: CameraPosition(
           target: _center,

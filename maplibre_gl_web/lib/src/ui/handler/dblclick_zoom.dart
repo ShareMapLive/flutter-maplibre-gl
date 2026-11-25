@@ -1,5 +1,5 @@
-import 'package:maplibre_gl_web/src/interop/interop.dart';
-import 'package:maplibre_gl_web/src/ui/events.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/ui/events.dart';
 
 class DoubleClickZoomHandler
     extends JsObjectWrapper<DoubleClickZoomHandlerJsImpl> {

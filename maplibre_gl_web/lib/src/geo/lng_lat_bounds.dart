@@ -1,7 +1,7 @@
 import 'dart:js_interop';
 
-import 'package:maplibre_gl_web/src/geo/lng_lat.dart';
-import 'package:maplibre_gl_web/src/interop/interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/geo/lng_lat.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/interop.dart';
 
 ///  A `LngLatBounds` object represents a geographical bounding box,
 ///  defined by its southwest and northeast points in longitude and latitude.
@@ -19,15 +19,8 @@ import 'package:maplibre_gl_web/src/interop/interop.dart';
 ///  var ne = new maplibregl.LngLat(-73.9397, 40.8002);
 ///  var llb = new maplibregl.LngLatBounds(sw, ne);
 class LngLatBounds extends JsObjectWrapper<LngLatBoundsJsImpl> {
-  factory LngLatBounds(
-    LngLat sw,
-    LngLat ne,
-  ) => LngLatBounds.fromJsObject(
-    LngLatBoundsJsImpl(
-      sw.jsObject,
-      ne.jsObject,
-    ),
-  );
+  factory LngLatBounds(LngLat sw, LngLat ne) =>
+      LngLatBounds.fromJsObject(LngLatBoundsJsImpl(sw.jsObject, ne.jsObject));
 
   ///  Set the northeast corner of the bounding box
   ///
@@ -105,10 +98,9 @@ class LngLatBounds extends JsObjectWrapper<LngLatBoundsJsImpl> {
   ///  @example
   ///  var llb = new maplibregl.LngLatBounds([-73.9876, 40.7661], [-73.9397, 40.8002]);
   ///  llb.toArray(); // = [[-73.9876, 40.7661], [-73.9397, 40.8002]]
-  List<List<num>> toArray() =>
-      (jsObject.toArray() as JSArray).toDart.nonNulls
-          .map((e) => (e as JSArray).toDart.cast<num>())
-          .toList();
+  List<List<num>> toArray() => (jsObject.toArray() as JSArray).toDart.nonNulls
+      .map((e) => (e as JSArray).toDart.cast<num>())
+      .toList();
 
   ///  Return the bounding box represented as a string.
   ///

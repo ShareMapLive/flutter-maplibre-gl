@@ -4,14 +4,15 @@ repository: https://github.com/maplibre/flutter-maplibre-gl
 issue_tracker: https://github.com/maplibre/flutter-maplibre-gl/issues
 
 environment:
-  sdk: '>=3.7.0 <4.0.0'
+  sdk: '>=3.12.0 <4.0.0'
 
 dev_dependencies:
   melos: ^7.4.0
   very_good_analysis: ^10.0.0
 
+# Keep scripts outside the Flutter workspace: its `test` dependency needs a
+# different analyzer/test_api set than flutter_test and Pigeon 29.1.0.
 workspace:
-  - scripts
   - maplibre_gl
   - maplibre_gl_web
   - maplibre_gl_example
@@ -21,16 +22,36 @@ melos:
   scripts:
     generate:
       description: Generate layer & source properties
-      exec: dart run lib/generate.dart
+      run: cd scripts && dart pub get && dart run lib/generate.dart
+
+    generate:pigeon:
+      description: Generate the Dart, Kotlin and Swift messages from pigeons/messages.dart
+      # Formatted twice: on the long argument lists of the layer messages, one
+      # pass of dart format leaves output that a second pass changes, which
+      # would fail format-all right after generation.
+      exec: dart run pigeon --input pigeons/messages.dart && dart format lib/src/native && dart format lib/src/native
       packageFilters:
-        scope: maplibre_code_gen
+        scope: sharemap_maplibre_gl
+
+    check-style-spec:
+      description: Verify input/style.json matches the pinned upstream MapLibre style spec
+      run: cd scripts && dart run lib/check_style_spec.dart
+
+    update-style-spec:
+      description: Re-download input/style.json from the latest upstream style spec release
+      run: cd scripts && dart run lib/check_style_spec.dart --update
 
     test:
       description: Run all tests
       run: |
         set -e
-        melos run test:io
-        melos run test:web
+        dart run melos run test:io
+        dart run melos run test:web
+        dart run melos run test:scripts
+
+    test:scripts:
+      description: Run the code generator tests
+      run: cd scripts && dart pub get && dart test
 
     test:io:
       description: Run IO tests
@@ -38,7 +59,7 @@ melos:
       packageFilters:
         scope:
           - maplibre_gl_platform_interface
-          - maplibre_gl
+          - sharemap_maplibre_gl
 
     test:io:coverage:
       description: Run IO tests with coverage
@@ -46,7 +67,7 @@ melos:
       packageFilters:
         scope:
           - maplibre_gl_platform_interface
-          - maplibre_gl
+          - sharemap_maplibre_gl
 
     test:web:
       description: Run Web tests
@@ -54,12 +75,17 @@ melos:
       packageFilters:
         scope:
           - maplibre_gl_platform_interface
-          - maplibre_gl
+          - sharemap_maplibre_gl
+          - maplibre_gl_web
 
     analyze-all:
       description: Run static analysis on all packages
       run: |
-        melos exec --concurrency 10 -- "dart analyze --fatal-warnings --fatal-infos"
+        set -e
+        dart run melos exec --concurrency 10 -- "dart analyze --fatal-warnings --fatal-infos"
+        cd scripts
+        dart pub get
+        dart analyze --fatal-warnings --fatal-infos
 
     format-all:
       description: Format all packages
@@ -67,5 +93,9 @@ melos:
 
     fix-all:
       run: |
-        melos exec --concurrency 10 -- "dart fix --apply"
-        melos exec --concurrency 10 -- "dart format -o write ."
+        set -e
+        dart run melos exec --concurrency 10 -- "dart fix --apply"
+        dart run melos exec --concurrency 10 -- "dart format -o write ."
+        cd scripts
+        dart fix --apply
+        dart format -o write .

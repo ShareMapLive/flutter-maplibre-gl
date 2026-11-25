@@ -1,6 +1,6 @@
 name: Build example app
 
-# Reusable build job shared by Flutter CI (stable) and Flutter Beta CI.
+# Reusable build job shared by Flutter CI and Scheduled CI.
 # Builds the example app for a single platform so callers can fan out across
 # android / ios / web without duplicating the setup boilerplate.
 
@@ -11,15 +11,29 @@ on:
         description: 'Target platform: android | ios | web'
         required: true
         type: string
+      ref:
+        description: 'Branch to check out (empty: the commit that triggered the run)'
+        required: false
+        default: ''
+        type: string
       flutter-channel:
         description: 'Flutter channel (stable, beta, ...)'
         required: false
         default: stable
         type: string
+      flutter-version:
+        description: 'Pinned Flutter version (when set, overrides flutter-channel)'
+        required: false
+        type: string
       web-release:
         description: 'Build web in release mode with the Pages base-href and upload it for deploy reuse'
         required: false
         default: false
+        type: boolean
+      upload-artifacts:
+        description: 'Upload the built APK and Runner.app (one build per platform per run, or the names clash)'
+        required: false
+        default: true
         type: boolean
 
 jobs:
@@ -31,18 +45,26 @@ jobs:
         working-directory: maplibre_gl_example
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref }}
 
       # Android toolchain
       - if: inputs.platform == 'android'
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: 'gradle'
 
       - uses: subosito/flutter-action@v2
+        if: ${{ !inputs.flutter-version }}
         with:
           channel: ${{ inputs.flutter-channel }}
+          cache: true
+      - uses: subosito/flutter-action@v2
+        if: ${{ inputs.flutter-version }}
+        with:
+          flutter-version: ${{ inputs.flutter-version }}
           cache: true
 
       - uses: bluefireteam/melos-action@v3
@@ -56,17 +78,27 @@ jobs:
       - if: inputs.platform == 'android'
         name: Build example APK
         run: flutter build apk
-      - if: inputs.platform == 'android'
+      - if: inputs.platform == 'android' && inputs.upload-artifacts
         name: Upload APK artifact
         uses: actions/upload-artifact@v7
         with:
           name: maplibre-flutter-demo.apk
           path: maplibre_gl_example/build/app/outputs/flutter-apk/app-release.apk
+      # The plugin's JVM unit tests (Pigeon adapters and bridges, GeoJSON
+      # helpers), through the example's Gradle project the build above set up.
+      # Release, like that build, so they reuse its compiled classes and
+      # engine artifacts instead of compiling a debug variant from scratch.
+      # AGP 9 creates unit tests for the tested build type (debug) only, so
+      # the property brings back the release ones.
+      - if: inputs.platform == 'android'
+        name: Run the Android unit tests
+        working-directory: maplibre_gl_example/android
+        run: ./gradlew :sharemap_maplibre_gl:testReleaseUnitTest -Pandroid.onlyEnableUnitTestForTheTestedBuildType=false
 
       - if: inputs.platform == 'ios'
         name: Build iOS package
         run: flutter build ios --simulator
-      - if: inputs.platform == 'ios'
+      - if: inputs.platform == 'ios' && inputs.upload-artifacts
         name: Upload Runner.app artifact
         uses: actions/upload-artifact@v7
         with:

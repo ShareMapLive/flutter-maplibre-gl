@@ -1,6 +1,6 @@
 import 'package:web/web.dart';
 
-import 'package:maplibre_gl_web/src/interop/interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/interop.dart';
 
 class DragRotateHandler extends JsObjectWrapper<DragRotateHandlerJsImpl> {
   ///  Returns a Boolean indicating whether the "drag to rotate" interaction is enabled.

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:sharemap_maplibre_gl/maplibre_gl.dart';
 import '../../page.dart';
 import '../../shared/shared.dart';
 
@@ -98,9 +98,7 @@ class _CameraControlsBodyState extends State<_CameraControlsBody> {
   );
 
   Future<void> _goToLondon() => _moveCamera(
-    CameraUpdate.newCameraPosition(
-      ExampleConstants.londonCameraPosition,
-    ),
+    CameraUpdate.newCameraPosition(ExampleConstants.londonCameraPosition),
   );
 
   @override
@@ -178,8 +176,8 @@ class _CameraControlsBodyState extends State<_CameraControlsBody> {
                     DropdownButton<CameraAnimationInterpolation?>(
                       isExpanded: true,
                       value: _interpolation,
-                      onChanged:
-                          (value) => setState(() => _interpolation = value),
+                      onChanged: (value) =>
+                          setState(() => _interpolation = value),
                       items: const [
                         DropdownMenuItem(
                           value: null,

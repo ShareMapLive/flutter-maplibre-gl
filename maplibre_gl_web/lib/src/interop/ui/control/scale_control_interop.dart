@@ -3,17 +3,14 @@ library;
 
 import 'dart:js_interop';
 
-import 'package:maplibre_gl_web/src/interop/ui/map_interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/ui/map_interop.dart';
 
 /// JS interop class for the ScaleControl options.
 extension type ScaleControlOptionsJsImpl._(JSObject _) implements JSObject {
   external num get maxWidth;
   external String get unit;
 
-  external factory ScaleControlOptionsJsImpl({
-    num? maxWidth,
-    String? unit,
-  });
+  external factory ScaleControlOptionsJsImpl({num? maxWidth, String? unit});
 }
 
 /// A `ScaleControl` control displays the ratio of a distance on the map

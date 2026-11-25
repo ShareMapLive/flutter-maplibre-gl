@@ -1,24 +1,27 @@
 import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
 import 'package:web/web.dart';
-import 'package:maplibre_gl_web/src/geo/geojson.dart';
-import 'package:maplibre_gl_web/src/geo/lng_lat.dart';
-import 'package:maplibre_gl_web/src/geo/lng_lat_bounds.dart';
-import 'package:maplibre_gl_web/src/interop/interop.dart';
-import 'package:maplibre_gl_web/src/geo/point.dart';
-import 'package:maplibre_gl_web/src/style/layers/layer.dart';
-import 'package:maplibre_gl_web/src/style/sources/geojson_source.dart';
-import 'package:maplibre_gl_web/src/style/sources/source.dart';
-import 'package:maplibre_gl_web/src/utils.dart' as utils;
-import 'package:maplibre_gl_web/src/style/sources/vector_source.dart';
-import 'package:maplibre_gl_web/src/style/style.dart';
-import 'package:maplibre_gl_web/src/ui/camera.dart';
-import 'package:maplibre_gl_web/src/ui/handler/box_zoom.dart';
-import 'package:maplibre_gl_web/src/ui/handler/dblclick_zoom.dart';
-import 'package:maplibre_gl_web/src/ui/handler/drag_pan.dart';
-import 'package:maplibre_gl_web/src/ui/handler/drag_rotate.dart';
-import 'package:maplibre_gl_web/src/ui/handler/keyboard.dart';
-import 'package:maplibre_gl_web/src/ui/handler/scroll_zoom.dart';
-import 'package:maplibre_gl_web/src/ui/handler/touch_zoom_rotate.dart';
+import 'package:sharemap_maplibre_gl_web/src/geo/geojson.dart';
+import 'package:sharemap_maplibre_gl_web/src/geo/lng_lat.dart';
+import 'package:sharemap_maplibre_gl_web/src/geo/lng_lat_bounds.dart';
+import 'package:sharemap_maplibre_gl_web/src/interop/interop.dart';
+import 'package:sharemap_maplibre_gl_web/src/geo/point.dart';
+import 'package:sharemap_maplibre_gl_web/src/style/layers/layer.dart';
+import 'package:sharemap_maplibre_gl_web/src/style/sources/geojson_source.dart';
+import 'package:sharemap_maplibre_gl_web/src/style/sources/source.dart';
+// Prefixed because package:web has an Event of its own.
+import 'package:sharemap_maplibre_gl_web/src/util/evented.dart' as evented;
+import 'package:sharemap_maplibre_gl_web/src/utils.dart' as utils;
+import 'package:sharemap_maplibre_gl_web/src/style/sources/vector_source.dart';
+import 'package:sharemap_maplibre_gl_web/src/style/style.dart';
+import 'package:sharemap_maplibre_gl_web/src/ui/camera.dart';
+import 'package:sharemap_maplibre_gl_web/src/ui/handler/box_zoom.dart';
+import 'package:sharemap_maplibre_gl_web/src/ui/handler/dblclick_zoom.dart';
+import 'package:sharemap_maplibre_gl_web/src/ui/handler/drag_pan.dart';
+import 'package:sharemap_maplibre_gl_web/src/ui/handler/drag_rotate.dart';
+import 'package:sharemap_maplibre_gl_web/src/ui/handler/keyboard.dart';
+import 'package:sharemap_maplibre_gl_web/src/ui/handler/scroll_zoom.dart';
+import 'package:sharemap_maplibre_gl_web/src/ui/handler/touch_zoom_rotate.dart';
 
 ///  The `MapLibreMap` object represents the map on your page. It exposes methods
 ///  and properties that enable you to programmatically change the map,
@@ -60,6 +63,12 @@ class MapLibreMap extends Camera {
   Style get style => Style.fromJsObject(jsObject.style);
 
   dynamic get painter => jsObject.painter;
+
+  /// How long symbols fade as they are placed, in milliseconds. 0 places
+  /// them on every frame without fading.
+  num get placementFadeDuration => jsObject.placementFadeDuration.toDartDouble;
+  set placementFadeDuration(num value) =>
+      jsObject.placementFadeDuration = value.toJS;
 
   ///  The map's {@link ScrollZoomHandler}, which implements zooming in and out with a scroll wheel or trackpad.
   ///  Find more details and examples using `scrollZoom` in the {@link ScrollZoomHandler} section.
@@ -180,6 +189,47 @@ class MapLibreMap extends Camera {
   ///  map.setMaxBounds(bounds);
   MapLibreMap setMaxBounds(LngLatBounds? bounds) =>
       MapLibreMap.fromJsObject(jsObject.setMaxBounds(bounds?.jsObject));
+
+  /// Sets or clears a clamp on the camera center. [clampCenter] gets the
+  /// center the camera is about to take, as longitude and latitude, and returns
+  /// the center to use instead, or null to keep it. Zoom, pitch and bearing are
+  /// never touched. It runs for gestures and for `jumpTo`, `easeTo` and
+  /// `flyTo` alike. A null [clampCenter] removes the clamp.
+  ///
+  /// Unlike [setMaxBounds], which keeps the whole visible area inside the
+  /// bounds and so forces a minimum zoom, this limits the center only.
+  void setCenterClamp(
+    ({double lng, double lat})? Function(double lng, double lat)? clampCenter,
+  ) {
+    final JSFunction? transform = clampCenter == null
+        ? null
+        : ((JSObject state) {
+            final result = JSObject();
+            final center = state.getProperty<JSObject?>('center'.toJS);
+            if (center != null) {
+              final next = clampCenter(
+                center.getProperty<JSNumber>('lng'.toJS).toDartDouble,
+                center.getProperty<JSNumber>('lat'.toJS).toDartDouble,
+              );
+              if (next != null) {
+                final clamped = LngLat(next.lng, next.lat).jsObject as JSObject;
+                result.setProperty('center'.toJS, clamped);
+              }
+            }
+            return result;
+          }).toJS;
+    // Library 6 has a setter; 5 has the property on the map itself.
+    if ((jsObject as JSObject)
+        .hasProperty('setTransformCameraUpdate'.toJS)
+        .toDart) {
+      jsObject.setTransformCameraUpdate(transform);
+    } else {
+      (jsObject as JSObject).setProperty(
+        'transformCameraUpdate'.toJS,
+        transform,
+      );
+    }
+  }
 
   ///  Sets or clears the map's minimum zoom level.
   ///  If the map's current zoom level is lower than the new minimum,
@@ -475,8 +525,17 @@ class MapLibreMap extends Camera {
   ///  });
   ///
   ///  @see [Highlight features containing similar data](https://maplibre.org/maplibre-gl-js/docs/examples/query-similar-features/)
-  List<dynamic> querySourceFeatures(String sourceId, dynamic parameters) =>
-      jsObject.querySourceFeatures(sourceId, parameters).toDart;
+  List<Feature> querySourceFeatures(
+    String sourceId, [
+    Map<String, dynamic>? parameters,
+  ]) {
+    // The parameters have to cross into JS as a JS object: a Dart map reaches
+    // maplibre-gl-js as an opaque value, so its filter was silently dropped.
+    final jsParameters = parameters != null ? utils.jsify(parameters) : null;
+    return (jsObject.querySourceFeatures(sourceId, jsParameters).toDart as List)
+        .map((dynamic f) => Feature.fromJsObject(f))
+        .toList();
+  }
 
   ///  Updates the map's MapLibre style object with a new value.
   ///
@@ -500,8 +559,9 @@ class MapLibreMap extends Camera {
   ///  @returns {MapLibreMap} `this`
   ///  @see [Change a map's style](https://maplibre.org/maplibre-gl-js/docs/examples/setstyle/)
   MapLibreMap setStyle(dynamic style, [dynamic options]) {
-    final styleJs =
-        style is Style ? style.jsObject as JSAny : utils.jsify(style);
+    final styleJs = style is Style
+        ? style.jsObject as JSAny
+        : utils.jsify(style);
     final optionsJs = utils.jsify(options);
     return MapLibreMap.fromJsObject(jsObject.setStyle(styleJs, optionsJs));
   }
@@ -513,6 +573,11 @@ class MapLibreMap extends Camera {
   ///  @example
   ///  var styleJson = map.getStyle();
   StyleJsImpl? getStyle() => jsObject.getStyle();
+
+  /// The style as a plain JS object, for reading it as data rather than
+  /// calling methods on it. See `getStyleObject` in the interop for why the
+  /// typed [StyleJsImpl] cannot be walked by `dartify` under dart2wasm.
+  JSObject? getStyleObject() => jsObject.getStyleObject();
 
   /// Return each layer of the  MapLibre style object, which can be used to check the order, toggle the visibility or change properties
   List<StyleLayerJsImpl> getLayers() {
@@ -703,6 +768,62 @@ class MapLibreMap extends Camera {
   ///  var catIconExists = map.hasImage('cat');
   bool hasImage(String id) => jsObject.hasImage(id);
 
+  ///  Whether this build of maplibre-gl-js has
+  ///  [setMissingStyleImageResolver], which arrived in version 6.
+  ///
+  ///  Worth checking rather than assuming: the library on the page is not
+  ///  always the one the plugin loads. A leftover `<script>` tag in
+  ///  `index.html`, or `MapLibreJsSource.preloaded`, can put version 5 there,
+  ///  and calling a method it does not have would throw on map creation.
+  bool get hasMissingStyleImageResolver =>
+      (jsObject as JSObject).has('setMissingStyleImageResolver');
+
+  ///  Registers [resolve] as the supplier of images the style asks for but does
+  ///  not have. It is called with the image id and should register the image by
+  ///  calling `addImage`; the map waits for the returned future. Null removes a
+  ///  previously registered resolver.
+  ///
+  ///  Since maplibre-gl-js 6 this replaces listening for `styleimagemissing`
+  ///  and calling `addImage` from the listener, which no longer resolves the
+  ///  request. Guard the call with [hasMissingStyleImageResolver], or let
+  ///  [setMissingStyleImageHandler] pick the path this build supports.
+  void setMissingStyleImageResolver(Future<void> Function(String id)? resolve) {
+    jsObject.setMissingStyleImageResolver(
+      resolve == null ? null : ((JSString id) => resolve(id.toDart).toJS).toJS,
+    );
+  }
+
+  ///  Has [resolve] supply the images the style asks for but does not have,
+  ///  whichever way the library on the page offers.
+  ///
+  ///  Keeps that difference here rather than at the call site: version 6 takes
+  ///  a resolver, version 5 has none and only lets a `styleimagemissing`
+  ///  listener do the work, and which of the two is on the page is not up to
+  ///  this plugin. A leftover `<script>` tag in `index.html`, or
+  ///  `MapLibreJsSource.preloaded`, can still put version 5 there.
+  ///
+  ///  Returns the listener's subscription on version 5, for the caller to
+  ///  unsubscribe, and null on version 6, where [clearMissingStyleImageHandler]
+  ///  is what removes the resolver again.
+  evented.Subscription? setMissingStyleImageHandler(
+    Future<void> Function(String id) resolve,
+  ) {
+    if (!hasMissingStyleImageResolver) {
+      return on(
+        'styleimagemissing',
+        (evented.Event event) => resolve(event.id),
+      );
+    }
+    setMissingStyleImageResolver(resolve);
+    return null;
+  }
+
+  ///  Undoes [setMissingStyleImageHandler] on a build that took a resolver. The
+  ///  version 5 path is undone by unsubscribing instead.
+  void clearMissingStyleImageHandler() {
+    if (hasMissingStyleImageResolver) setMissingStyleImageResolver(null);
+  }
+
   ///  Remove an image from a style. This can be an image from the style's original
   ///  [sprite]  or any images
   ///  that have been added at runtime using {@link addImage}.
@@ -786,7 +907,7 @@ class MapLibreMap extends Camera {
   ///  @example
   ///  // Move a layer with ID 'label' before the layer with ID 'waterways'.
   ///  map.moveLayer('label', 'waterways');
-  MapLibreMap moveLayer(String id, String beforeId) =>
+  MapLibreMap moveLayer(String id, [String? beforeId]) =>
       MapLibreMap.fromJsObject(jsObject.moveLayer(id, beforeId));
 
   ///  Removes the layer with the given ID from the map's style.
@@ -855,15 +976,20 @@ class MapLibreMap extends Camera {
     String layerId,
     dynamic filter, [
     StyleSetterOptions? options,
-  ]) => MapLibreMap.fromJsObject(jsObject.setFilter(layerId, filter));
+  ]) => MapLibreMap.fromJsObject(
+    // jsify turns a Dart list into a JS array, nested lists included, and
+    // keeps null, which removes the filter.
+    jsObject.setFilter(layerId, (filter as Object?).jsify()),
+  );
 
   ///  Returns the filter applied to the specified style layer.
   ///
   ///  @param {string} layerId The ID of the style layer whose filter to get.
   ///  @returns {Array} The layer's filter.
-  List<dynamic> getFilter(String layerId) {
-    final filter = jsObject.getFilter(layerId);
-    return filter != null ? filter.toDart : [];
+  dynamic getFilter(String layerId) {
+    // dartify converts the nested expression arrays too, which toDart does
+    // not. A filter can also be a plain boolean, so the result stays dynamic.
+    return jsObject.getFilter(layerId).dartify();
   }
 
   ///  Sets the value of a paint property in the specified style layer.
@@ -934,8 +1060,46 @@ class MapLibreMap extends Camera {
   ///  @param {Object} [options]
   ///  @param {boolean} [options.validate=true] Whether to check if the filter conforms to the MapLibre JS Style Specification. Disabling validation is a performance optimization that should only be used if you have previously validated the values you will be passing to this function.
   ///  @returns {MapLibreMap} `this`
-  MapLibreMap setLight(dynamic light, StyleSetterOptions options) =>
-      MapLibreMap.fromJsObject(jsObject.setLight(light, options.jsObject));
+  MapLibreMap setLight(dynamic light, [StyleSetterOptions? options]) =>
+      MapLibreMap.fromJsObject(
+        jsObject.setLight(utils.jsify(light)!, options?.jsObject),
+      );
+
+  ///  Sets the any combination of sky values.
+  ///
+  ///  @param sky Sky properties to set. Must conform to the [MapLibre Style Specification](https://maplibre.org/maplibre-style-spec/sky/).
+  ///  @param {Object} [options]
+  ///  @param {boolean} [options.validate=true] Whether to check if the sky conforms to the MapLibre JS Style Specification. Disabling validation is a performance optimization that should only be used if you have previously validated the values you will be passing to this function.
+  ///  @returns {MapLibreMap} `this`
+  MapLibreMap setSky(dynamic sky, [StyleSetterOptions? options]) =>
+      MapLibreMap.fromJsObject(
+        jsObject.setSky(utils.jsify(sky)!, options?.jsObject),
+      );
+
+  ///  Loads a 3D terrain mesh, based on a "raster-dem" source.
+  ///
+  ///  @param {Object | null} terrain The terrain to set, or `null` to remove the terrain.
+  ///  @returns {MapLibreMap} `this`
+  MapLibreMap setTerrain(dynamic terrain) =>
+      MapLibreMap.fromJsObject(jsObject.setTerrain(utils.jsify(terrain)));
+
+  ///  Sets the map's projection.
+  ///
+  ///  @param {Object | null} projection A projection definition object, or `null` to reset to the default mercator projection.
+  ///  @returns {MapLibreMap} `this`
+  MapLibreMap setProjection(dynamic projection) =>
+      MapLibreMap.fromJsObject(jsObject.setProjection(utils.jsify(projection)));
+
+  ///  Sets one property of the style's global state, read by the
+  ///  `global-state` expression.
+  MapLibreMap setGlobalStateProperty(String name, dynamic value) =>
+      MapLibreMap.fromJsObject(
+        jsObject.setGlobalStateProperty(name, utils.jsify(value)),
+      );
+
+  ///  Returns the style's global state, read by the `global-state`
+  ///  expression.
+  dynamic getGlobalState() => jsObject.getGlobalState();
 
   ///  Returns the value of the light object.
   ///
@@ -975,7 +1139,7 @@ class MapLibreMap extends Camera {
   ///   required.*
   ///  @param {string} key (optional) The key in the feature state to reset.
   removeFeatureState(dynamic target, [String? key]) =>
-      jsObject.removeFeatureState(target);
+      jsObject.removeFeatureState(target, key);
 
   ///  Gets the state of a feature.
   ///  Features are identified by their `id` attribute, which must be an integer or a string that can be
@@ -1299,8 +1463,9 @@ class MapOptions extends JsObjectWrapper<MapOptionsJsImpl> {
     if (hash != null) jsImpl.hash = hash.toJS;
     jsImpl.interactive = (interactive ?? true).toJS;
     if (container != null) {
-      jsImpl.container =
-          container is String ? container.toJS : container as JSAny;
+      jsImpl.container = container is String
+          ? container.toJS
+          : container as JSAny;
     }
     if (bearingSnap != null) jsImpl.bearingSnap = bearingSnap.toJS;
     jsImpl.pitchWithRotate = (pitchWithRotate ?? true).toJS;
@@ -1348,8 +1513,9 @@ class MapOptions extends JsObjectWrapper<MapOptionsJsImpl> {
     if (boxZoom != null) jsImpl.boxZoom = boxZoom.toJS;
     if (dragRotate != null) jsImpl.dragRotate = dragRotate.toJS;
     final dragPanValue = dragPan ?? true;
-    jsImpl.dragPan =
-        dragPanValue is bool ? dragPanValue.toJS : dragPanValue as JSAny;
+    jsImpl.dragPan = dragPanValue is bool
+        ? dragPanValue.toJS
+        : dragPanValue as JSAny;
     jsImpl.keyboard = (keyboard ?? true).toJS;
     jsImpl.doubleClickZoom = (doubleClickZoom ?? true).toJS;
     jsImpl.touchZoomRotate = (touchZoomRotate ?? true).toJS;

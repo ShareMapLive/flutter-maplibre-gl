@@ -1,16 +1,14 @@
-import 'package:maplibre_gl_web/src/style/layers/line_layer.dart';
+import 'package:sharemap_maplibre_gl_web/src/style/layers/line_layer.dart';
 
 class LineLayerJsImpl {
   static toJs(LineLayer lineLayer) => toDict(lineLayer).jsify();
 
   static toDict(LineLayer lineLayer) {
-    final dict = <String, dynamic>{
-      'id': lineLayer.id,
-      'type': 'line',
-    };
+    final dict = <String, dynamic>{'id': lineLayer.id, 'type': 'line'};
     if (lineLayer.source != null) {
-      dict['source'] =
-          lineLayer.source is String ? lineLayer.source : lineLayer.source.dict;
+      dict['source'] = lineLayer.source is String
+          ? lineLayer.source
+          : lineLayer.source.dict;
     }
     if (lineLayer.sourceLayer != null) {
       dict['source-layer'] = lineLayer.sourceLayer;
