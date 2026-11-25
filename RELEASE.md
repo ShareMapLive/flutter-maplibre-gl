@@ -9,6 +9,8 @@ The repository is a multi-package workspace (`sharemap_maplibre_gl`, `sharemap_m
 
 All packages share the same version number. A release = bump versions + update changelog + tag + publish.
 
+The unpublished `scripts` package resolves separately from the Flutter workspace because its `test` dependency conflicts with the SDK-pinned `flutter_test` and Pigeon analyzer versions. Root Melos commands invoke its generator, analyzer and tests from that package.
+
 ## Versioning Policy
 
 Format: `MAJOR.MINOR.PATCH` (currently MAJOR fixed at 0 until 1.0.0).

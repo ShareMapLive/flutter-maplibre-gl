@@ -17,14 +17,14 @@ dependencies:
     sdk: flutter
   flutter_hooks: ^0.21.3+1
   http: ^1.6.0
-  sharemap_maplibre_gl:
-    path: ../maplibre_gl
   path_provider: ^2.1.5
   # Held at 12.x: permission_handler_android 14 requires the app to compile
   # against Android SDK 37, and Flutter stable still sets compileSdk 36, so the
   # build fails at checkReleaseAarMetadata. Lift this once Flutter moves to 37.
   permission_handler: ^12.0.0
   share_plus: ^13.3.0
+  sharemap_maplibre_gl:
+    path: ../maplibre_gl
 
 dev_dependencies:
   flutter_launcher_icons: ^0.14.3

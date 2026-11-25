@@ -2,13 +2,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:sharemap_maplibre_gl/maplibre_gl.dart';
 import '../../page.dart';
-import '../../shared/shared.dart';
 
 class TransformRequestExample extends ExamplePage {
   const TransformRequestExample({super.key})
       : super(
           const Icon(Icons.security),
-          'Transform Request Headers',
+          'Transform Request Callback',
           category: ExampleCategory.advanced,
           needsLocationPermission: false,
         );
@@ -29,16 +28,7 @@ class _TransformRequestBodyState extends State<_TransformRequestBody> {
   final ScrollController _scrollController = ScrollController();
 
   RequestParameters _onTransformRequest(String url, ResourceType resourceType) {
-    // We add custom headers for all requests intercepted
-    final headers = <String, String>{
-      'X-Client-Platform': 'Flutter-Example',
-      'X-Example-Header': 'TransformRequestExample',
-      'Authorization': 'Bearer mock-jwt-token-12345',
-    };
-
-    // Log the request details for visual feedback
-    final logMessage = '[${resourceType.name.toUpperCase()}] -> $url\n'
-        'Added Headers: $headers';
+    final logMessage = '[${resourceType.name.toUpperCase()}] -> $url';
 
     // Update log list safely
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -62,10 +52,7 @@ class _TransformRequestBodyState extends State<_TransformRequestBody> {
       }
     });
 
-    return RequestParameters(
-      url: url,
-      headers: headers,
-    );
+    return RequestParameters(url: url);
   }
 
   @override
@@ -91,7 +78,7 @@ class _TransformRequestBodyState extends State<_TransformRequestBody> {
                 zoom: 5.0,
               ),
               styleString: 'https://tiles.sharemap.live/tiles/styles/sharemap.json',
-              transformRequest: null,
+              transformRequest: _onTransformRequest,
               trackCameraPosition: true,
             ),
           ),

@@ -62,6 +62,7 @@ import 'examples/advanced/translucent_full_map.dart';
 import 'examples/advanced/map_snapshot.dart';
 import 'examples/advanced/map_language.dart';
 import 'examples/advanced/large_geojson_stress.dart';
+import 'examples/advanced/transform_request_example.dart';
 
 // Doc-only examples (not shown in app home, only reachable via ?example=slug)
 import 'examples/docs/doc_full_map.dart';
@@ -239,6 +240,7 @@ final List<ExamplePage> _allPages = <ExamplePage>[
   const TranslucentFullMapPage(),
   const MapSnapshotPage(),
   const LargeGeojsonStressPage(),
+  const TransformRequestExample(),
 ];
 
 // Doc-only pages: not shown in the app home list, only reachable via ?example=<slug>.

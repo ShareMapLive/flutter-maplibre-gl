@@ -1,8 +1,6 @@
 name: maplibre_code_gen
 description: code generation for flutter-maplibre-gl
 publish_to: 'none'
-resolution: workspace
-
 version: 0.28.0+sharemap.1
 
 environment:
