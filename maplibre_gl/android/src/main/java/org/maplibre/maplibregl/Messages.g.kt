@@ -701,7 +701,7 @@ data class PgCameraPosition (
  * Generated class from Pigeon that represents data sent in messages.
  * This class should not be extended by any user class outside of the generated file.
  */
-sealed class PgCameraUpdate
+sealed class PgCameraUpdate 
 /**
  * Moves the camera to [cameraPosition].
  *
@@ -2735,7 +2735,7 @@ class MapLibreOfflineDownloadFlutterApi(private val binaryMessenger: BinaryMesse
         }
       } else {
         callback(Result.failure(MessagesPigeonUtils.createConnectionError(channelName)))
-      }
+      } 
     }
   }
 }
@@ -4780,7 +4780,7 @@ class MapLibreMapFlutterApi(private val binaryMessenger: BinaryMessenger, privat
         }
       } else {
         callback(Result.failure(MessagesPigeonUtils.createConnectionError(channelName)))
-      }
+      } 
     }
   }
   /** The user dragged a feature of an interactive layer. */
@@ -4798,7 +4798,7 @@ class MapLibreMapFlutterApi(private val binaryMessenger: BinaryMessenger, privat
         }
       } else {
         callback(Result.failure(MessagesPigeonUtils.createConnectionError(channelName)))
-      }
+      } 
     }
   }
   /**
@@ -4819,7 +4819,7 @@ class MapLibreMapFlutterApi(private val binaryMessenger: BinaryMessenger, privat
         }
       } else {
         callback(Result.failure(MessagesPigeonUtils.createConnectionError(channelName)))
-      }
+      } 
     }
   }
   /** The camera moved, for a map that tracks the camera position. */
@@ -4837,7 +4837,7 @@ class MapLibreMapFlutterApi(private val binaryMessenger: BinaryMessenger, privat
         }
       } else {
         callback(Result.failure(MessagesPigeonUtils.createConnectionError(channelName)))
-      }
+      } 
     }
   }
   /**
@@ -4858,7 +4858,7 @@ class MapLibreMapFlutterApi(private val binaryMessenger: BinaryMessenger, privat
         }
       } else {
         callback(Result.failure(MessagesPigeonUtils.createConnectionError(channelName)))
-      }
+      } 
     }
   }
   /** A style finished loading. */
@@ -4876,7 +4876,7 @@ class MapLibreMapFlutterApi(private val binaryMessenger: BinaryMessenger, privat
         }
       } else {
         callback(Result.failure(MessagesPigeonUtils.createConnectionError(channelName)))
-      }
+      } 
     }
   }
   /**
@@ -4897,7 +4897,7 @@ class MapLibreMapFlutterApi(private val binaryMessenger: BinaryMessenger, privat
         }
       } else {
         callback(Result.failure(MessagesPigeonUtils.createConnectionError(channelName)))
-      }
+      } 
     }
   }
   /**
@@ -4918,7 +4918,7 @@ class MapLibreMapFlutterApi(private val binaryMessenger: BinaryMessenger, privat
         }
       } else {
         callback(Result.failure(MessagesPigeonUtils.createConnectionError(channelName)))
-      }
+      } 
     }
   }
   /** The way the camera follows the user location changed to [mode]. */
@@ -4936,7 +4936,7 @@ class MapLibreMapFlutterApi(private val binaryMessenger: BinaryMessenger, privat
         }
       } else {
         callback(Result.failure(MessagesPigeonUtils.createConnectionError(channelName)))
-      }
+      } 
     }
   }
   /** The camera stopped following the user location. */
@@ -4954,7 +4954,7 @@ class MapLibreMapFlutterApi(private val binaryMessenger: BinaryMessenger, privat
         }
       } else {
         callback(Result.failure(MessagesPigeonUtils.createConnectionError(channelName)))
-      }
+      } 
     }
   }
   /** The map finished rendering and has nothing left to load or animate. */
@@ -4972,7 +4972,7 @@ class MapLibreMapFlutterApi(private val binaryMessenger: BinaryMessenger, privat
         }
       } else {
         callback(Result.failure(MessagesPigeonUtils.createConnectionError(channelName)))
-      }
+      } 
     }
   }
   /** The user location changed, with the compass [heading] on iOS. */
@@ -4990,7 +4990,7 @@ class MapLibreMapFlutterApi(private val binaryMessenger: BinaryMessenger, privat
         }
       } else {
         callback(Result.failure(MessagesPigeonUtils.createConnectionError(channelName)))
-      }
+      } 
     }
   }
 }
