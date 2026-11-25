@@ -209,7 +209,9 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
           disable-animations: true
           working-directory: maplibre_gl_example
-          script: flutter test integration_test/all_tests.dart -d emulator-5554
+          script: >-
+            flutter drive --driver=test_driver/integration_test.dart
+            --target=integration_test/all_tests.dart -d emulator-5554
 
   build-android:
     name: "Build Android apk"
@@ -325,7 +327,9 @@ jobs:
           echo "udid=$udid" >> "$GITHUB_OUTPUT"
       - name: Run integration tests
         working-directory: maplibre_gl_example
-        run: flutter test integration_test/all_tests.dart -d ${{ steps.simulator.outputs.udid }}
+        run: >-
+          flutter drive --driver=test_driver/integration_test.dart
+          --target=integration_test/all_tests.dart -d ${{ steps.simulator.outputs.udid }}
 
   # On main, build web in release mode and upload it so the docs deploy can
   # reuse it (no second web build). On PRs/other branches, a plain web build:

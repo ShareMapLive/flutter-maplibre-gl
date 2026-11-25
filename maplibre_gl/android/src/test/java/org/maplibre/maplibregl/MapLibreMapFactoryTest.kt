@@ -35,6 +35,11 @@ class MapLibreMapFactoryTest {
             super.setTextureView(textureView)
         }
 
+        override fun setTransformRequestEnabled(enabled: Boolean) {
+            calls.add("transformRequestEnabled $enabled")
+            super.setTransformRequestEnabled(enabled)
+        }
+
         override fun setCompassEnabled(compassEnabled: Boolean) {
             calls.add("compassEnabled $compassEnabled")
             super.setCompassEnabled(compassEnabled)
@@ -73,6 +78,7 @@ class MapLibreMapFactoryTest {
             dragEnabled = false,
             iosLongClickDurationMs = 500L,
             textureView = true,
+            transformRequestEnabled = true,
         )
 
         assertEquals(params, throughTheCodec(params))
@@ -90,6 +96,7 @@ class MapLibreMapFactoryTest {
             initialCameraPosition = PgCameraPosition(0.0, PgLatLng(45.0, 9.0), 0.0, 11.5),
             dragEnabled = false,
             textureView = true,
+            transformRequestEnabled = true,
         )
 
         assertEquals(
@@ -101,6 +108,7 @@ class MapLibreMapFactoryTest {
                 "dragEnabled false",
                 "styleString assets/style.json",
                 "textureView true",
+                "transformRequestEnabled true",
             ),
             configure(throughTheCodec(params), density = 2f),
         )
@@ -112,11 +120,12 @@ class MapLibreMapFactoryTest {
             options = PgMapOptions(),
             dragEnabled = true,
             textureView = false,
+            transformRequestEnabled = false,
         )
 
         // No style and no camera: the builder keeps its defaults for them.
         assertEquals(
-            listOf("dragEnabled true", "textureView false"),
+            listOf("dragEnabled true", "textureView false", "transformRequestEnabled false"),
             configure(throughTheCodec(params)),
         )
     }
