@@ -22,7 +22,7 @@ melos:
   scripts:
     generate:
       description: Generate layer & source properties
-      run: cd scripts && dart run lib/generate.dart
+      run: cd scripts && dart pub get && dart run lib/generate.dart
 
     generate:pigeon:
       description: Generate the Dart, Kotlin and Swift messages from pigeons/messages.dart

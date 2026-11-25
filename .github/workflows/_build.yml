@@ -21,6 +21,10 @@ on:
         required: false
         default: stable
         type: string
+      flutter-version:
+        description: 'Pinned Flutter version (when set, overrides flutter-channel)'
+        required: false
+        type: string
       web-release:
         description: 'Build web in release mode with the Pages base-href and upload it for deploy reuse'
         required: false
@@ -53,8 +57,14 @@ jobs:
           cache: 'gradle'
 
       - uses: subosito/flutter-action@v2
+        if: ${{ !inputs.flutter-version }}
         with:
           channel: ${{ inputs.flutter-channel }}
+          cache: true
+      - uses: subosito/flutter-action@v2
+        if: ${{ inputs.flutter-version }}
+        with:
+          flutter-version: ${{ inputs.flutter-version }}
           cache: true
 
       - uses: bluefireteam/melos-action@v3
@@ -83,7 +93,7 @@ jobs:
       - if: inputs.platform == 'android'
         name: Run the Android unit tests
         working-directory: maplibre_gl_example/android
-        run: ./gradlew :maplibre_gl:testReleaseUnitTest -Pandroid.onlyEnableUnitTestForTheTestedBuildType=false
+        run: ./gradlew :sharemap_maplibre_gl:testReleaseUnitTest -Pandroid.onlyEnableUnitTestForTheTestedBuildType=false
 
       - if: inputs.platform == 'ios'
         name: Build iOS package

@@ -19,6 +19,10 @@ on:
         required: false
         default: stable
         type: string
+      flutter-version:
+        description: 'Pinned Flutter version (when set, overrides flutter-channel)'
+        required: false
+        type: string
       upload-coverage:
         description: 'Upload the unit test coverage to Codecov'
         required: false
@@ -37,8 +41,14 @@ jobs:
         with:
           ref: ${{ inputs.ref }}
       - uses: subosito/flutter-action@v2
+        if: ${{ !inputs.flutter-version }}
         with:
           channel: ${{ inputs.flutter-channel }}
+          cache: true
+      - uses: subosito/flutter-action@v2
+        if: ${{ inputs.flutter-version }}
+        with:
+          flutter-version: ${{ inputs.flutter-version }}
           cache: true
       - uses: bluefireteam/melos-action@v3
         with:

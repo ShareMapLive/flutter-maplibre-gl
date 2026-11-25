@@ -22,7 +22,8 @@ let package = Package(
             dependencies: [
                 "sharemap_maplibre_gl_objc",
                 .product(name: "MapLibre", package: "maplibre-gl-native-distribution")
-            ]
+            ],
+            path: "Sources/maplibre_gl"
         ),
         // Catches the Objective-C exceptions MapLibre raises, which Swift cannot.
         .target(name: "sharemap_maplibre_gl_objc")

@@ -769,7 +769,7 @@ void main() {
     const generated = {
       'Dart': 'lib/src/native/messages.g.dart',
       'Kotlin': 'android/src/main/java/org/maplibre/maplibregl/Messages.g.kt',
-      'Swift': 'ios/maplibre_gl/Sources/maplibre_gl/Messages.g.swift',
+      'Swift': 'ios/sharemap_maplibre_gl/Sources/maplibre_gl/Messages.g.swift',
     };
 
     /// The method names after `<api>.` in the channel names of [path].

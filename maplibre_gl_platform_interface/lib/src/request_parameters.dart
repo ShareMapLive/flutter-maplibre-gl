@@ -7,7 +7,7 @@ class RequestParameters {
   const RequestParameters({required this.url, this.headers});
 
   Map<String, dynamic> toMap() => {
-        'url': url,
-        if (headers != null) 'headers': headers,
-      };
+    'url': url,
+    if (headers != null) 'headers': headers,
+  };
 }

@@ -38,10 +38,11 @@ enum CameraAnimationInterpolation {
 
 typedef OnPlatformViewCreatedCallback = void Function(int);
 
-typedef TransformRequestCallback = FutureOr<RequestParameters> Function(
-  String url,
-  ResourceType resourceType,
-);
+typedef TransformRequestCallback =
+    FutureOr<RequestParameters> Function(
+      String url,
+      ResourceType resourceType,
+    );
 
 abstract class MapLibrePlatform {
   static const MapLibrePlatform Function() _unregistered =
