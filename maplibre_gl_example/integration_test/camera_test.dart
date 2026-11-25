@@ -897,67 +897,71 @@ void main() {
     // The MapLibre Android location component tilts linearly, with a system
     // ValueAnimator that the CI emulator, run with animations off, ends at
     // once; so this runs on iOS only. Web has no location component.
-    testWidgets('setTrackingCameraOptions tilts at constant speed', (
-      tester,
-    ) async {
-      const duration = Duration(seconds: 2);
-      const tilt = 40.0;
-      // (share of the duration, share of the tilt) for each onCameraMove.
-      final samples = <(double, double)>[];
-      final clock = Stopwatch();
-      final controller = await pumpMap(
+    testWidgets(
+      'setTrackingCameraOptions tilts at constant speed',
+      (
         tester,
-        builder: (onMapCreated, onStyleLoaded) => MapLibreMap(
-          styleString: offlineStyle,
-          initialCameraPosition: const CameraPosition(
-            target: LatLng(0, 0),
-            zoom: 3,
+      ) async {
+        const duration = Duration(seconds: 2);
+        const tilt = 40.0;
+        // (share of the duration, share of the tilt) for each onCameraMove.
+        final samples = <(double, double)>[];
+        final clock = Stopwatch();
+        final controller = await pumpMap(
+          tester,
+          builder: (onMapCreated, onStyleLoaded) => MapLibreMap(
+            styleString: offlineStyle,
+            initialCameraPosition: const CameraPosition(
+              target: LatLng(0, 0),
+              zoom: 3,
+            ),
+            myLocationEnabled: true,
+            locationSource: const ManualLocationSource(),
+            myLocationTrackingMode: MyLocationTrackingMode.tracking,
+            trackCameraPosition: true,
+            onCameraMove: (position) {
+              if (!clock.isRunning) return;
+              samples.add((
+                clock.elapsedMicroseconds / duration.inMicroseconds,
+                position.tilt / tilt,
+              ));
+            },
+            onMapCreated: onMapCreated,
+            onStyleLoadedCallback: onStyleLoaded,
           ),
-          myLocationEnabled: true,
-          locationSource: const ManualLocationSource(),
-          myLocationTrackingMode: MyLocationTrackingMode.tracking,
-          trackCameraPosition: true,
-          onCameraMove: (position) {
-            if (!clock.isRunning) return;
-            samples.add((
-              clock.elapsedMicroseconds / duration.inMicroseconds,
-              position.tilt / tilt,
-            ));
-          },
-          onMapCreated: onMapCreated,
-          onStyleLoadedCallback: onStyleLoaded,
-        ),
-      );
-      await pumpUntil(
-        tester,
-        controller.updateManualLocation(
-          ManualLocationUpdate(
-            target: const LatLng(0, 0),
-            horizontalAccuracy: 5,
-            timestamp: DateTime.now(),
-          ),
-        ),
-        'updateManualLocation',
-      );
-      await pumpFor(tester, const Duration(seconds: 1));
-
-      clock.start();
-      await pumpUntil(
-        tester,
-        controller.setTrackingCameraOptions(tilt: tilt, duration: duration),
-        'setTrackingCameraOptions',
-      );
-      clock.stop();
-
-      for (final time in [0.2, 0.35, 0.5, 0.65, 0.8]) {
-        expect(
-          _progressAt(samples, time),
-          // Tight: MLNMapView's default curve is never more than 0.07 off.
-          closeTo(time, 0.04),
-          reason: 'share of the tilt at $time of the duration ($samples)',
         );
-      }
-    }, skip: kIsWeb || defaultTargetPlatform != TargetPlatform.iOS);
+        await pumpUntil(
+          tester,
+          controller.updateManualLocation(
+            ManualLocationUpdate(
+              target: const LatLng(0, 0),
+              horizontalAccuracy: 5,
+              timestamp: DateTime.now(),
+            ),
+          ),
+          'updateManualLocation',
+        );
+        await pumpFor(tester, const Duration(seconds: 1));
+
+        clock.start();
+        await pumpUntil(
+          tester,
+          controller.setTrackingCameraOptions(tilt: tilt, duration: duration),
+          'setTrackingCameraOptions',
+        );
+        clock.stop();
+
+        for (final time in [0.2, 0.35, 0.5, 0.65, 0.8]) {
+          expect(
+            _progressAt(samples, time),
+            // Tight: MLNMapView's default curve is never more than 0.07 off.
+            closeTo(time, 0.04),
+            reason: 'share of the tilt at $time of the duration ($samples)',
+          );
+        }
+      },
+      skip: kIsWeb || defaultTargetPlatform != TargetPlatform.iOS,
+    );
   });
 
   group('tracked camera and callbacks', () {

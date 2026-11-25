@@ -140,7 +140,7 @@ Future<void> main() async {
   // here to keep existing diff noise minimal.
   const templates = [
     "maplibre_gl/android/src/main/java/org/maplibre/maplibregl/LayerPropertyConverter.java",
-    "maplibre_gl/ios/maplibre_gl/Sources/maplibre_gl/LayerPropertyConverter.swift",
+    "maplibre_gl/ios/sharemap_maplibre_gl/Sources/maplibre_gl/LayerPropertyConverter.swift",
     "maplibre_gl/lib/src/layer_expressions.dart",
     "maplibre_gl/lib/src/layer_properties.dart",
     "maplibre_gl_web/lib/src/layer_tools.dart",
@@ -215,7 +215,7 @@ String readAndroidSdkVersion() {
 /// Read the MapLibre iOS SDK version pinned in the plugin podspec.
 String readIosSdkVersion() {
   final podspec = File(
-    '${Directory.current.parent.path}/maplibre_gl/ios/maplibre_gl.podspec',
+    '${Directory.current.parent.path}/maplibre_gl/ios/sharemap_maplibre_gl.podspec',
   ).readAsStringSync();
   final match = RegExp(
     r"s\.dependency\s+'MapLibre',\s+'(\d+(?:\.\d+)*)'",
